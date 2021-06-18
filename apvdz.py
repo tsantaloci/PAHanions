@@ -250,10 +250,19 @@ def optmizedinputfile(Type,path,coords,smiles):
 
                 file.write(i)
             file.close()
-        
-
-
     return
+        
+def runjobs(name,number):
+    a = number
+    os.chdir(path)
+    for i in range(a):
+       print(i)
+       os.chdir(str(i) + '/')
+       os.system('qsub ' + str(i) + '.pbs')
+       os.chdir('../')  
+    return
+
+    
 
 
 def Main():
@@ -269,6 +278,7 @@ def Main():
       #  print(coords)
    # print(len(smiles))
         optmizedinputfile('anion',path,coords,smiles)
+        runjobs(path,smiles)
 
 
 

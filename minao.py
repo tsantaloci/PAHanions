@@ -9,54 +9,6 @@ import sys
 import subprocess
 import shutil
 
-nonfunctionalizedsmi = 'c1cccc2c1cccc2'
-types = 'CNOH'
-if types == 'C2HC2H':
-    onefunctional = 'C#C'
-    otherfunctional = 'C#C'
-
-
-#types = 'CNCN'
-if types == 'CNCN':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#N'
-
-
-
-#types = 'CNC2H'
-if types == 'CNC2H':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#C'
-
-if types == 'CNOH':
-    onefunctional = 'C#N'
-    otherfunctional = 'O'
-
-if types == 'C2HOH':
-    onefunctional = 'C#C'
-    otherfunctional = 'O'
-
-
-
-basis = 'minao'
-
-
-#nonfunctionalizedsmi = 'c1ccccc1'
-#nonfunctionalizedsmi = 'c1cccc2c1cc3c(c2)cccc3'
-
-
-onefunctional = 'C#C'
-otherfunctional = 'C#C'
-#position = 'ortho'
-
-#path = '1Naph'
-
-typeofnaph = '2Naph/'
-path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-#otherfunctional = input('what is the other functional group')
-
-
-
 
 def functionalgroupadderbenz(amountofrings,x,y,position):
     if amountofrings == 'c1ccccc1' and position == 'ortho':
@@ -72,12 +24,11 @@ def functionalgroupadderbenz(amountofrings,x,y,position):
 
     return difunct
 
-#print(functionalgroupadderbenz(nonfunctionalizedsmi,onefunctional,otherfunctional,position))
 
 
-def difunctionalNaph(amountofrings,x,y,position):
+def difunctionalNaph(amountofrings,x,y,typeofnaph):
     if amountofrings == 'c1cccc2c1cccc2' and typeofnaph == '1Naph/':
-        placeOne = onefunctional[::-1] +'(3)' + '.' + 'c(3)1cccc2c1cccc2' + '.' + otherfunctional[::-1] + '(4)'
+        placeOne = x[::-1] +'(3)' + '.' + 'c(3)1cccc2c1cccc2' + '.' + y[::-1] + '(4)'
         placeOne = list(placeOne)
         difunct = []
         for num,i in enumerate(placeOne):
@@ -95,7 +46,7 @@ def difunctionalNaph(amountofrings,x,y,position):
                     else:
                         difunct.append(i)
     if amountofrings == 'c1cccc2c1cccc2' and typeofnaph == '2Naph/':
-        placeOne = onefunctional[::-1] +'(3)' + '.' + 'c1c(3)ccc2c1cccc2' + '.' + otherfunctional[::-1] + '(4)'
+        placeOne = x[::-1] +'(3)' + '.' + 'c1c(3)ccc2c1cccc2' + '.' + y[::-1] + '(4)'
         placeOne = list(placeOne)
         difunct = []
         for num,i in enumerate(placeOne):
@@ -182,8 +133,7 @@ def singledeprotonator(difunct):
     return final1
 
 
-def smileweeder():
-    final = naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph))
+def smileweeder(final):
     #final = singledeprotonator(functionalgroupadderbenz(nonfunctionalizedsmi,onefunctional,otherfunctional,position))
     cleansmi = []
     for i in final:
@@ -193,20 +143,22 @@ def smileweeder():
 
     return cleansmi
 
-def xyzcoordsfilegen(smiles):
+def xyzcoordsfilegen(path,smiles):
     '''
     converts SMILES strings from cleansmi list into xyz coords and places them in the correct directory and file
 
     '''
     #if position == '1':
     for i in range(len(smiles)):
-        os.mkdir(path+str(i)) 
+    #    print(path + '/' +str(i) + '/' + str(i)+'.smi')
+        os.mkdir(path + '/' +str(i)) 
           #  os.chdir('1Naph/'+ str(i))
-        filename = open(path + str(i) + '/' + str(i)+'.smi','w+')
+        
+        filename = open(path + '/' +str(i) + '/' + str(i)+'.smi','w+')
         filename.write(str(smiles[i]))
         filename.close()
             #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-        cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
+        cmd = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + '/' + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
           #  cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' +  path + str(i) +'/' + str(i) + '.com '+ ' --gen3D' 
             
         print(cmd)
@@ -219,7 +171,7 @@ def xyzcoordsfilegen(smiles):
     return
 
 
-def mininputfilecreator(Type,smiles):
+def mininputfilecreator(path,Type,smiles):
     '''
     creates minimum basis set guess input file
     '''
@@ -227,7 +179,7 @@ def mininputfilecreator(Type,smiles):
    #     print(path)
     for i in range(len(smiles)):
             
-        with open(path + str(i) + '/' + str(i)+ '.com','r') as file:
+        with open(path + '/' + str(i) + '/' + str(i)+ '.com','r') as file:
             #    filename = open('1Naph/' + str(1) + '/' + str(1)+'.smi','w+')
             data = file.readlines()
             data[0] = '#N B3LYP/STO-3G OPT \n'
@@ -243,7 +195,7 @@ def mininputfilecreator(Type,smiles):
             else:
                 print('give a type')
 
-        filename = open(path + str(i) + '/' + str(i)+'.com','w+')
+        filename = open(path + '/' + str(i) + '/' + str(i)+'.com','w+')
         for i in data:
             filename.write(str(i))
         filename.write('\n')
@@ -253,7 +205,7 @@ def mininputfilecreator(Type,smiles):
         
 
 
-def pbsfilecreator(cluster,path,smiles):
+def pbsfilecreator(cluster,path,smiles,types,typeofnaph):
     '''
     creates pbs scripts
     '''
@@ -316,14 +268,59 @@ def runjobs(name,number):
 
 def Main():
     
+    nonfunctionalizedsmi = 'c1cccc2c1cccc2'
+    types = ''
+    basis = 'minao'
+    onefunctional = ''
+    otherfunctional = ''
+    typeofnaph = ''
+    #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/OHOH/minao/2Naph'
+    name = path_to_minao.split('/')
+    print(name)
+    for i in name:
+        i = i.upper()
+        print(i)
+        types = i
+        if i == 'OHOH':
+            onefunctional = 'O'
+            otherfunctional = 'O'
+        if i == 'C2HC2H':
+            onefunctional = 'C#C'
+            otherfunctional = 'C#C'
+        if i == 'CNCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'C#N'
+        if i == 'CNC2H' or i == 'C2HCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'C#C'
+        if i == 'CNOH' or i == 'OHCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'O'
+        if i == 'C2HOH' or i == 'OHC2H':
+            onefunctional = 'C#C'
+            otherfunctional = 'O'
+    for x in name:
+        x = x.upper()
+        if x == '1NAPH':
+            typeofnaph = '1Naph/'
+        if x == '2NAPH':
+            typeofnaph = '2Naph/'
+
+
+    #print(onefunctional)
+    #print(otherfunctional)
+    #print(types)
+    #print(typeofnaph)
+    
     aa = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)
     print(naphdeproton(aa))
-    print(len(smileweeder()))
-    smiles = smileweeder()
-    xyzcoordsfilegen(smiles)
-    mininputfilecreator('Anion',smiles)     
-    pbsfilecreator('seq',path,smiles)
-    runjobs(path,len(smiles))
+    print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
+    smiles = smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))
+    xyzcoordsfilegen(path_to_minao,smiles)
+    mininputfilecreator(path_to_minao,'Radical',smiles)     
+    pbsfilecreator('seq',path_to_minao,smiles,types,typeofnaph)
+   # runjobs(path_to_minao,len(smiles))
 
     return
 Main()
