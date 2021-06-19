@@ -11,54 +11,17 @@ import pandas as pd
 import shutil
 
 
-nonfunctionalizedsmi = 'c1cccc2c1cccc2'
-types = 'C2HOH'
-if types == 'C2HC2H':
-    onefunctional = 'C#C'
-    otherfunctional = 'C#C'
 
-
-#types = 'CNCN'
-if types == 'CNCN':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#N'
+def checkifreadyfornextstep(path):
+	#os.system("grep 'Normal termination '"  + str(path) + '*/*.out')
+        os.chdir(path)
+#       os.system('grep ' + 'Normal termination' + ' */*.out')
+        os.system("grep -rl 'Normal termination' */*.out | xargs sed -i 's/Normal termination/Has been brought to next step/g'")
+        return
 
 
 
-#types = 'CNC2H'
-if types == 'CNC2H':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#C'
-
-if types == 'CNOH':
-    onefunctional = 'C#N'
-    otherfunctional = 'O'
-
-if types == 'C2HOH':
-    onefunctional = 'C#C'
-    otherfunctional = 'O'
-
-
-
-
-basis = 'apvdz'
-
-
-#nonfunctionalizedsmi = 'c1ccccc1'
-#nonfunctionalizedsmi = 'c1cccc2c1cc3c(c2)cccc3'
-
-
-onefunctional = 'C#C'
-otherfunctional = 'C#C'
-#position = 'ortho'
-#position = '1'
-#path = '1Naph'
-typeofnaph = '1Naph/'
-#path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-path = '../' + 'test/' +'CNCNt' + '/' + str(basis) + '/' + typeofnaph 
-
-#otherfunctional = input('what is the other functional group')
-
+   
 
 
 
@@ -243,7 +206,7 @@ def optmizedinputfile(Type,path,coords,smiles):
             for i in range(4,len(data)):
              #   print(i)
                 data[i] = data[i].replace(data[i][10:20],'')
-                print(data[i])
+                #print(data[i])
             file = open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','w+')
             for i in data:
                 print(i)
@@ -266,19 +229,66 @@ def runjobs(name,number):
 
 
 def Main():
+    nonfunctionalizedsmi = 'c1cccc2c1cccc2'
+    types = ''
+    basis = 'apvdz'
+    onefunctional = ''
+    otherfunctional = ''
+    typeofnaph = ''
+    #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
+    path_to_apvdz = '/Users/tsantaloci/Desktop/PAHcode/src/CNCNt/apvdz/1Naph'
+    name = path_to_apvdz.split('/')
+   # print(name)
+    for i in name:
+        i = i.upper()
+    #    print(i)
+        types = i
+        if i == 'OHOH':
+            onefunctional = 'O'
+            otherfunctional = 'O'
+        if i == 'C2HC2H':
+            onefunctional = 'C#C'
+            otherfunctional = 'C#C'
+        if i == 'CNCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'C#N'
+        if i == 'CNC2H' or i == 'C2HCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'C#C'
+        if i == 'CNOH' or i == 'OHCN':
+            onefunctional = 'C#N'
+            otherfunctional = 'O'
+        if i == 'C2HOH' or i == 'OHC2H':
+            onefunctional = 'C#C'
+            otherfunctional = 'O'
+    for x in name:
+        x = x.upper()
+        if x == '1NAPH':
+            typeofnaph = '1Naph/'
+        if x == '2NAPH':
+            typeofnaph = '2Naph/'
+
+
+    #print(onefunctional)
+    #print(otherfunctional)
+    #print(types)
+    #p
 
         #pbsfilecreator('map',path,smiles)
-    filelist, totalenergylist = energydict(path)
+    filelist, totalenergylist = energydict(path_to_apvdz)
    # print(len(smiles))
-    leftoverdirect = pandadataframe(path,filelist, totalenergylist)
-    print(leftoverdirect)
+    leftoverdirect = pandadataframe(path_to_apvdz,filelist, totalenergylist)
+    #print(leftoverdirect)
+    checkifreadyfornextstep(path_to_apvdz)
     for smiles in leftoverdirect:
         #print(x)
-        coords = gatheroptxyzcoords(path,smiles)
+        coords = gatheroptxyzcoords(path_to_apvdz,smiles)
       #  print(coords)
    # print(len(smiles))
-        optmizedinputfile('anion',path,coords,smiles)
-        runjobs(path,smiles)
+        optmizedinputfile('anion',path_to_apvdz,coords,smiles)
+
+       # runjobs(path_to_apvdz,smiles)
+    checkifreadyfornextstep(path_to_apvdz)
 
 
 
