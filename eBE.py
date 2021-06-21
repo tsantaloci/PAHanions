@@ -55,7 +55,7 @@ def inputfilecfour(filename,xyz):
         filename2.write(str(i))
     filename2.write('\n')
     filename2.write('*CFOUR(CHARGE=-1,REFERENCE=RHF,SPHERICAL=ON,BASIS=AUG-PVDZ\n')
-    filename2.write('       LINDEP_TOL=10,LINEQ_CONV=10,SCF_CONV=7\n')
+    filename2.write('       LINDEP_TOL=7:,LINEQ_CONV=7,SCF_CONV=5,SCF_MAXCYC=250\n')
     filename2.write('       CALC=CCSD,EXCITE=EOMIP,ESTATE_SYM=1/1\n')
     filename2.write('       COORDS=CARTESIAN\n')
     filename2.write('       FROZEN_CORE=ON,ABCDTYPE=AOBASIS\n')

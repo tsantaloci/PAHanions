@@ -3,29 +3,7 @@ import os
 
 
 #types = 'C2HOH'
-types = 'CNCN'
-if types == 'C2HC2H':
-    onefunctional = 'C#C'
-    otherfunctional = 'C#C'
 
-
-
-if types == 'CNCN':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#N'
-if types == 'CNC2H':
-    onefunctional = 'C#N'
-    otherfunctional = 'C#C'
-if types == 'CNOH':
-    onefunctional = 'C#N'
-    otherfunctional = 'O'
-if types == 'C2HOH':
-    onefunctional = 'C#C'
-    otherfunctional = 'O'
-basis = 'apvdz'
-typeofnaph = '1Naph/'
-path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/1Naph'
-path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/EOM/aniondipole/1Naph'
 
 def checkifreadyfornextstep(path):
         #os.system("grep 'Normal termination '"  + str(path) + '*/*.out')
@@ -85,17 +63,28 @@ def pbsfilecreator(cluster,path,smiles):
     return
 
 def gatheroptxyzcoords(path,smiles):
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
+    atomnum = 0
+    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.com') as file:
         data = file.readlines()
-        abc = []
+        atomnum = len(data[5:])-1
+
+
+    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
+   # with open(path + '/' + '0' + + '/' + '0' + '.out' ) as file:
+        data = file.readlines()
+        standnum = []
         for num,i in enumerate(data):
-            if  'Population analysis using the SCF density' in data[num]:
-                abc.append(num)
-        amountoflinesabovepop = 5
+            if  'Standard orientation' in data[num]:
+                standnum.append(num)
+        print((atomnum,smiles))
+        minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
+        print(minxyzguesscoords)   
+      #  amountoflinesbelowstand = 6
         # print(data[abc[-1]-6][5:7])
-        lastatomnum = int(data[abc[-1]-6][5:7])
+      #  lastatomnum = int(data[abc[-1]-6][5:7])
+      #  print(lastatomnum)
         
-        minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
+      #  minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
         file.close()
 
 
@@ -196,9 +185,27 @@ def runjobs(name,number):
 
 
 def Main():
+    types = 'C2HC2H'
+    if types == 'C2HC2H':
+        onefunctional = 'C#C'
+        otherfunctional = 'C#C'
+    if types == 'CNCN':
+        onefunctional = 'C#N'
+        otherfunctional = 'C#N'
+    if types == 'CNC2H':
+        onefunctional = 'C#N'
+        otherfunctional = 'C#C'
+    if types == 'CNOH':
+        onefunctional = 'C#N'
+        otherfunctional = 'O'
+    if types == 'C2HOH':
+        onefunctional = 'C#C'
+        otherfunctional = 'O'
+    basis = 'apvdz'
+    typeofnaph = '1Naph/'
+    path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/1Naph'
+    path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/Dipoleanion/1Naph'
     checkifreadyfornextstep(path_to_apvdz_opt)
-
-    
     os.chdir(path_to_apvdz_opt)
     leftoverdirect = []
     for smiles in os.listdir():
@@ -213,10 +220,10 @@ def Main():
      #   atomnum = amount(path_to_apvdz_opt,smiles)
         os.mkdir(smiles)
         print(smiles)
-     #   pbsfilecreator('seq',path_dipole_bound_anion,smiles)
-     #   coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
-     #   xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
-        #print(coords)
+        pbsfilecreator('seq',path_dipole_bound_anion,smiles)
+        coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
+        xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
+        print(coords)
         '''
         when us are ready to submit jobs uncommit runjobs 
       #  runjobs(path_dipole_bound_anion,smiles)

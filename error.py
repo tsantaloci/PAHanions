@@ -54,7 +54,7 @@ def xyzgrabber(name,amountofatoms ,Type,path):
         
     path = path.replace('.out','.com')
     newfile = open(path, 'w+')
-    newfile.write('#N B3LYP/aug-cc-pVDZ OPT \n')
+    newfile.write('#N B3LYP/aug-cc-pVDZ OPT SCF=YQC SCF=IntRep  Use=L506 Guess=Mix Guess=Sparse Guess=NoSymm\n')
     newfile.write('\n')
     newfile.write(str(name) + '\n')
     newfile.write('\n')
@@ -117,5 +117,6 @@ def Main():
 #    runjobs(name,runjobs1)
     return
 Main()
-os.chdir('error')
+path_to_error = '/ddn/home6/r2532/chem/Diss/naph/src/error'
+os.chdir(path_to_error)
 os.remove('error.out')
