@@ -105,7 +105,7 @@ def inputcreator(dipole,xyz,filename,num):
     return
 
 
-def pbsfilecreator(cluster,path,smiles):
+def excpbsfilecreator(cluster,path,smiles):
     '''
     creates pbs scripts
     '''
@@ -123,35 +123,56 @@ def pbsfilecreator(cluster,path,smiles):
             fp.write("#PBS -N %s_o\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l cput=1000:00:00\n#PBS -l " % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
             fp.write("#PBS -l nodes=1:ppn=2\n#PBS -l file=100gb\n\n")
-            fp.write("export g09root=/usr/local/apps/\n. $g09root/g09/bsd/g09.profile\n\n")
-            fp.write("scrdir=/tmp/bnp.$PBS_JOBID\n\nmkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
-            fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
-            fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
+            fp.write('\n')
+            fp.write('module load intel\n')
+            fp.write('module load mpt\n')
+            fp.write('export PATH=/ptmp/bwhopkin/molpro_mpt/2012/molprop_2012_1_Linux_x86_64_i8/bin:$PATH\n')
+            fp.write('\n')
+            fp.write('export WORKDIR=$PBS_O_WORKDIR\n')
+            fp.write('export TMPDIR=/tmp/$USER/$PBS_JOBID\n')
+            fp.write('cd $WORKDIR\n')
+            fp.write('mkdir -p $TMPDIR\n')
+            fp.write('\n')
+            fp.write('#process $PBS_NODEFILE to create the mpd.hosts file and start the MPD ring.\n')
+            fp.write('\n')
+            fp.write('#setenv NCPUS_TOTAL  `cat $PBS_NODEFILE | wc -l`\n')
+            fp.write('#perl /usr/local/apps/bin/make_mpdhosts.pl $NCPUS_TOTAL $PBS_NODEFILE\n')
+            fp.write('#setenv NODES  `cat mpd.hosts | wc -l`\n')
+            fp.write('#echo $NODES\n')
+            fp.write('#mpdboot -n $NODES\n')
+            fp.write('\n')
+            fp.write('date\n')
+            fp.write("mpiexec molpro.exe %s.com " % (baseName))
+            fp.write('date\n')
+            fp.write('\n')
+            fp.write('#mpdallexit\n')
+            fp.write('\n')
+            fp.write('rm -rf $TMPDIR\n')
+
     elif cluster == 'map':
         with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
             fp.write("#!/bin/sh\n")
             fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
             # r410 node
-            fp.write("#PBS -q r410\n")
-            fp.write(
-                "#PBS -l nodes=1:ppn=4\n#PBS -q gpu\n\nscrdir=/tmp/$USER.$PBS_JOBID\n\n")
-            fp.write(
-                "mkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
-            fp.write(
-                """echo "exec_host = $HOSTNAME"\n\nif [[ $HOSTNAME =~ cn([0-9]{3}) ]];\n""")
-            fp.write("then\n")
-            fp.write(
-                "  nodenum=${BASH_REMATCH[1]};\n  nodenum=$((10#$nodenum));\n  echo $nodenum\n\n")
-            fp.write(
-                """  if (( $nodenum <= 29 ))\n  then\n    echo "Using AVX version";\n""")
-            fp.write(
-                "    export g16root=/usr/local/apps/gaussian/g16-b01-avx/\n  elif (( $nodenum > 29 ))\n")
-            fp.write("""  then\n    echo "Using AVX2 version";\n    export g16root=/usr/local/apps/gaussian/g16-b01-avx2/\n  else\n""")
-            fp.write("""    echo "Unexpected condition!"\n    exit 1;\n  fi\nelse\n""")
-            fp.write("""  echo "Not on a compute node!"\n  exit 1;\nfi\n\n""")
-            fp.write("cd $PBS_O_WORKDIR\n. $g16root/g16/bsd/g16.profile\ng16 {0}.com {0}.out".format(baseName, baseName) +
-                    str(output_num) + "\n\nrm -r $scrdir\n")
+         #   fp.write("#PBS -q r410\n")
+            fp.write('\n')
+            fp.write('module load pbspro molpro\n')
+            fp.write('\n')
+            fp.write('export WORKDIR=$PBS_O_WORKDIR\n')
+            fp.write('export TMPDIR=/tmp/$USER/$PBS_JOBID\n')
+            fp.write('mkdir -p $TMPDIR\n')
+            fp.write('\n')
+            fp.write('cd $WORKDIR\n')
+            fp.write('\n')
+            fp.write('date\n')
+            fp.write('hostname\n')
+            fp.write('molpro -t 4 ' + str(baseName) + '.com\n')
+            fp.write('date\n')
+            fp.write('\n')
+            fp.write('rm -rf $TMPDIR\n')
+            fp.write('\n')
+
 
 
     return
@@ -182,7 +203,7 @@ def Main():
         i
         ## If you need the directories added uncomment
         #os.mkdir(str(i))
-        pbsfilecreator('seq',path_to_exc_calcs,str(i))
+        excpbsfilecreator('seq',path_to_exc_calcs,str(i))
         xyzcoords = grabxyz(path_to_anion_dipole_moments,str(i) )
         letxyzcoords = atom_num_to_letter(xyzcoords)
         dipole = dipolemomentgrabber(path_to_anion_dipole_moments,str(i))

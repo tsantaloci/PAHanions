@@ -1,31 +1,12 @@
-import numpy as np
 import os
-import itertools
-import glob
-import subprocess
-import time
-import sys
-#import system
-import subprocess
 import pandas as pd
-import shutil
-
-
 
 def checkifreadyfornextstep(path):
-	#os.system("grep 'Normal termination '"  + str(path) + '*/*.out')
         os.chdir(path)
-#       os.system('grep ' + 'Normal termination' + ' */*.out')
-        os.system("grep -rl 'Normal termination' */*.out | xargs sed -i 's/Normal termination/Has been brought to next step/g'")
+        os.system("grep -rl 'Normal termination' */*.out | xargs sed -i 's/Normal termination/Has been brought to apvdz/g'")
         return
 
-
-
-   
-
-
-
-def pbsfilecreator(cluster,path,smiles):
+def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
     '''
     creates pbs scripts
     '''
@@ -75,10 +56,7 @@ def pbsfilecreator(cluster,path,smiles):
 
     return
 
-
-
-
-def energydict(path):
+def energydict(path,path_to_src):
     '''
     gather all the energies from the output files
 
@@ -110,7 +88,7 @@ def energydict(path):
                     totenergylist.append(float(iterenergy[-1][23:23+21])*627.509) #kcal/mol
                     filnumber.append(i) 
 
-    os.chdir('../../../../src/')
+    os.chdir(path_to_src)
     return filnumber, totenergylist
 #print(energydict(smileweeder()))
 
@@ -128,13 +106,14 @@ def pandadataframe(path,filelist,energylist):
         #print(uptdata)
         for i in range(1,len(uptdata)):
             differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
-            #print(differ)
+            print(differ)
             if abs(differ) <= .001:
                 num = int(uptdata[i-1][0:2])
                # print(str(uptdata[i-1][0:2]))
                 for x in os.listdir(path + '/' + str(num)):
-                    print(str(uptdata[i-1][0:2]))
+                    #print(str(uptdata[i-1][0:2]))
                     os.remove(path +'/'+ str(num)  + '/' + x)
+                    print(num + 'DEL')
                 os.rmdir(path + '/'+ str(num))
         remainderdir = []
         for abc in os.listdir(path):
@@ -145,88 +124,69 @@ def pandadataframe(path,filelist,energylist):
 
 #filelist, totalenergylist = energydict(path,smileweeder())
 #pandadataframe(path,filelist, totalenergylist)
-
-
 def gatheroptxyzcoords(path,smiles):
+    atomnum = 0
+    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.com') as file:
+        data = file.readlines()
+        atomnum = len(data[5:])-1
+
 
     with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
+   # with open(path + '/' + '0' + + '/' + '0' + '.out' ) as file:
         data = file.readlines()
-        abc = []
+        standnum = []
         for num,i in enumerate(data):
-            if  'Population analysis using the SCF density' in data[num]:
-                abc.append(num)
-        amountoflinesabovepop = 5
+            if  'Standard orientation' in data[num]:
+                standnum.append(num)
+        print((atomnum,smiles))
+        minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
+        print(minxyzguesscoords)   
+      #  amountoflinesbelowstand = 6
         # print(data[abc[-1]-6][5:7])
-        lastatomnum = int(data[abc[-1]-6][5:7])
+      #  lastatomnum = int(data[abc[-1]-6][5:7])
+      #  print(lastatomnum)
         
-        minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
+      #  minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
         file.close()
 
 
     return minxyzguesscoords
 
+
+
 def optmizedinputfile(Type,path,coords,smiles):
         #print(x)
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
-        data = file.readlines()
-        data[0] = '#N B3LYP/aug-cc-pVDZ OPT \n'
-        data[1] = '\n'
-        data.insert(2,'2Naph\n')
-        data.insert(3,'\n')
-        if Type == 'anion' or Type == 'Anion':
+    filename = open(path +'/' + str(smiles) + '/' + str(smiles) + '.com','w+')
+    filename.write('#N B3LYP/aug-cc-pVDZ OPT \n')
+    filename.write('\n')
+    filename.write('2Naph\n')
+    filename.write('\n')
+    if Type == 'anion' or Type == 'Anion':
             ## If Anion -1 1 and if Radical 0 2
-            data.insert(4,'-1 1 \n')
+        filename.write('-1 1\n')
                 #print(data)
-        elif Type == 'radical' or Type == 'Radical':
-            data.insert(4,'0 2 \n')
-                    
-        data[5:] = ''
+    elif Type == 'radical' or Type == 'Radical':
+        filename.write('0 2\n')
 
-    #    file.close()
-
-        filename = open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','w+')
-        for i in data:
-           # print(i)
-            i
-            filename.write(str(i))
-        file.close()
-        filename = open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','a')
-    
+  #  filename.write('\n')
+    for i in coords:
         
-        for i in coords:
-            i
+        i = i.replace('  0  ', ' ')
+        print(i)
             #print(i[16:])
-            filename.write(i[16:])
-        filename.write('\n')
-        filename.close()
+        filename.write(i[16:])
+    filename.write('\n')
+    filename.close()
     #print(x)
-        
-        with open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','r') as file:
-            data = file.readlines()
-            for i in range(4,len(data)):
-             #   print(i)
-                data[i] = data[i].replace(data[i][10:20],'')
-                #print(data[i])
-            file = open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','w+')
-            for i in data:
-                print(i)
-
-                file.write(i)
-            file.close()
     return
         
 def runjobs(name,number):
-    a = number
-    os.chdir(path)
-    for i in range(a):
-       print(i)
-       os.chdir(str(i) + '/')
-       os.system('qsub ' + str(i) + '.pbs')
-       os.chdir('../')  
+  #  a = number
+    os.chdir(name)
+    os.chdir(str(number) + '/')
+    os.system('qsub ' + str(number) + '.pbs')
+    os.chdir('../')  
     return
-
-    
-
 
 def Main():
     nonfunctionalizedsmi = 'c1cccc2c1cccc2'
@@ -236,7 +196,9 @@ def Main():
     otherfunctional = ''
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-    path_to_apvdz = '/Users/tsantaloci/Desktop/PAHcode/src/CNCNt/apvdz/1Naph'
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/minao/2Naph/2Naph'
+    path_to_apvdz = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/2Naph'
+    path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
     name = path_to_apvdz.split('/')
    # print(name)
     for i in name:
@@ -275,20 +237,25 @@ def Main():
     #p
 
         #pbsfilecreator('map',path,smiles)
-    filelist, totalenergylist = energydict(path_to_apvdz)
+    filelist, totalenergylist = energydict(path_to_minao,path_to_src)
    # print(len(smiles))
-    leftoverdirect = pandadataframe(path_to_apvdz,filelist, totalenergylist)
-    #print(leftoverdirect)
-    checkifreadyfornextstep(path_to_apvdz)
+    leftoverdirect = pandadataframe(path_to_minao,filelist, totalenergylist)
+    checkifreadyfornextstep(path_to_minao)
     for smiles in leftoverdirect:
-        #print(x)
-        coords = gatheroptxyzcoords(path_to_apvdz,smiles)
-      #  print(coords)
-   # print(len(smiles))
-        optmizedinputfile('anion',path_to_apvdz,coords,smiles)
+        try:
+            coords = gatheroptxyzcoords(path_to_minao,smiles)
+            print(coords)
+            os.mkdir(path_to_apvdz + '/' + smiles)
+            optmizedinputfile('anion',path_to_apvdz,coords,smiles)
+            pbsfilecreator('seq','','',path_to_apvdz,smiles)
+            runjobs(path_to_apvdz,smiles)
+        except FileExistsError:
+            print('Directory exists already ' + str(smiles))
+            pass
+        
 
-       # runjobs(path_to_apvdz,smiles)
-    checkifreadyfornextstep(path_to_apvdz)
+
+
 
 
 

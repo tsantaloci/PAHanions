@@ -25,10 +25,13 @@ if types == 'C2HOH':
 basis = 'apvdz'
 typeofnaph = '1Naph/'
 path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/1Naph'
-path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/EOM/aniondipole'
+path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/EOM/aniondipole/1Naph'
 
-
-
+def checkifreadyfornextstep(path):
+        #os.system("grep 'Normal termination '"  + str(path) + '*/*.out')
+        os.chdir(path)
+        os.system("grep -rl 'Normal termination' */*.out | xargs sed -i 's/Normal termination/Move to dipole moment step/g'")
+        return
 
 
 def pbsfilecreator(cluster,path,smiles):
@@ -122,7 +125,7 @@ def xyzgrabber(amountofatoms,smiles,xyzcoords,path):
         
     
     newfile = open(path + '/' +str(smiles) +'/' + str(smiles)  + '.com', 'w+')
-    newfile.write('#N B3LYP/aug-cc-pVDZ SP \n')
+    newfile.write('#N B3LYP/aug-cc-pVDZ SP SCF(conver=6) \n')
     newfile.write('\n')
     newfile.write(str(typeofnaph) + types + '\n')
     newfile.write('\n')
@@ -190,19 +193,29 @@ def runjobs(name,number):
        os.chdir('../')  
     return    
 
+
+
 def Main():
+    checkifreadyfornextstep(path_to_apvdz_opt)
+
+    
     os.chdir(path_to_apvdz_opt)
     leftoverdirect = []
     for smiles in os.listdir():
-        leftoverdirect.append(smiles)
+        filename = open(str(smiles) + '/' + str(smiles) + '.out')
+        data = filename.readlines()
+        for i in data:
+            if 'Move to dipole moment step' in i:
+                leftoverdirect.append(smiles)
     os.chdir(path_dipole_bound_anion)
     for smiles in leftoverdirect:
         
-        atomnum = amount(path_to_apvdz_opt,smiles)
+     #   atomnum = amount(path_to_apvdz_opt,smiles)
         os.mkdir(smiles)
-        pbsfilecreator('seq',path_dipole_bound_anion,smiles)
-        coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
-        xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
+        print(smiles)
+     #   pbsfilecreator('seq',path_dipole_bound_anion,smiles)
+     #   coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
+     #   xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
         #print(coords)
         '''
         when us are ready to submit jobs uncommit runjobs 

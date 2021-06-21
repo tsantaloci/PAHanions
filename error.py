@@ -96,7 +96,7 @@ def Main():
     '''
     before you run code make directory error in src
     '''
-    path_to_check_for_errors = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/1Naph'
+    path_to_check_for_errors = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/1Naph'
     greper(path_to_check_for_errors + '/' +'*' + '/' + '*' + '.out')
     readerror('error/error')
     for i in readerror('error/error'):
@@ -108,7 +108,7 @@ def Main():
         if '2Naph' in i:
             name = '2Naph'
         print(xyzgrabber(name,amountofatoms ,'Anion',path_with_errors))
-        runjobs(path_with_errors,path_with_errors)
+      #  runjobs(path_with_errors,path_with_errors)
 
 
 
