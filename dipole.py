@@ -18,7 +18,7 @@ def pbsfilecreator(cluster,path,smiles):
     '''
     
         
-    outName = str(types) +  typeofnaph  + str(smiles)
+    outName =  str(smiles)
     mem_pbs_opt ='10'
     baseName = str(smiles)
     output_num = ''
@@ -76,9 +76,9 @@ def gatheroptxyzcoords(path,smiles):
         for num,i in enumerate(data):
             if  'Standard orientation' in data[num]:
                 standnum.append(num)
-        print((atomnum,smiles))
+       # print((atomnum,smiles))
         minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
-        print(minxyzguesscoords)   
+       # print(minxyzguesscoords)   
       #  amountoflinesbelowstand = 6
         # print(data[abc[-1]-6][5:7])
       #  lastatomnum = int(data[abc[-1]-6][5:7])
@@ -116,7 +116,7 @@ def xyzgrabber(amountofatoms,smiles,xyzcoords,path):
     newfile = open(path + '/' +str(smiles) +'/' + str(smiles)  + '.com', 'w+')
     newfile.write('#N B3LYP/aug-cc-pVDZ SP SCF(conver=6) \n')
     newfile.write('\n')
-    newfile.write(str(typeofnaph) + types + '\n')
+    newfile.write('aaaa'+  '\n')
     newfile.write('\n')
     newfile.write('-1 1\n')    
     for i in total2:
@@ -162,7 +162,7 @@ def optmizedinputfile(Type,path,coords,smiles):
         for i in range(4,len(data)):
              #   print(i)
             data[i] = data[i].replace(data[i][10:20],'')
-            print(data[i])
+           # print(data[i])
         file = open(path  +'/' + str(smiles) + '/' + str(smiles)+ '.com','w+')
         for i in data:
             print(i)
@@ -173,13 +173,11 @@ def optmizedinputfile(Type,path,coords,smiles):
     return
 
 def runjobs(name,number):
-    a = number
-    os.chdir(path)
-    for i in range(a):
-       print(i)
-       os.chdir(str(i) + '/')
-       os.system('qsub ' + str(i) + '.pbs')
-       os.chdir('../')  
+    os.chdir(name)
+    print(number)
+    os.chdir(str(number) + '/')
+    os.system('qsub ' + str(number) + '.pbs')
+    os.chdir('../')  
     return    
 
 
@@ -202,9 +200,9 @@ def Main():
         onefunctional = 'C#C'
         otherfunctional = 'O'
     basis = 'apvdz'
-    typeofnaph = '1Naph/'
-    path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/1Naph'
-    path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/Dipoleanion/1Naph'
+    typeofnaph = '2Naph/'
+    path_to_apvdz_opt = '/ddn/home6/r2532/chem/Diss/naph/C2HC2H/apvdz/2Naph'
+    path_dipole_bound_anion = '/ddn/home6/r2532/chem/Diss/naph/C2HC2H/EOM/2Naph'
     checkifreadyfornextstep(path_to_apvdz_opt)
     os.chdir(path_to_apvdz_opt)
     leftoverdirect = []
@@ -217,17 +215,17 @@ def Main():
     os.chdir(path_dipole_bound_anion)
     for smiles in leftoverdirect:
         
-     #   atomnum = amount(path_to_apvdz_opt,smiles)
+        atomnum = amount(path_to_apvdz_opt,smiles)
         os.mkdir(smiles)
         print(smiles)
         pbsfilecreator('seq',path_dipole_bound_anion,smiles)
         coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
         xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
-        print(coords)
+       # print(coords)
         '''
         when us are ready to submit jobs uncommit runjobs 
-      #  runjobs(path_dipole_bound_anion,smiles)
         '''
+        runjobs(path_dipole_bound_anion,smiles)
 
 
 
