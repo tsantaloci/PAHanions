@@ -11,48 +11,48 @@ def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
     creates pbs scripts
     '''
     
-    for i in range(len(smiles)):
-        outName = str(types) +  typeofnaph  + str(i)
-        mem_pbs_opt ='10'
-        baseName = str(i)
-        output_num = ''
-        i = str(i)
+    
+    outName = str(types) +  typeofnaph  + str(smiles)
+    mem_pbs_opt ='10'
+    baseName = str(smiles)
+    output_num = ''
+    smiles = str(smiles)
 
-        if cluster == 'seq':
-            with open('%s/%s.pbs' % (path + '/' + i, i), 'w') as fp:
-                fp.write("#!/bin/sh\n")
-                fp.write("#PBS -N %s_o\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l cput=1000:00:00\n#PBS -l " % outName)
-                fp.write("mem={0}gb\n".format(mem_pbs_opt))
-                fp.write("#PBS -l nodes=1:ppn=2\n#PBS -l file=100gb\n\n")
-                fp.write("export g09root=/usr/local/apps/\n. $g09root/g09/bsd/g09.profile\n\n")
-                fp.write("scrdir=/tmp/bnp.$PBS_JOBID\n\nmkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
-                fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
-                fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
-        elif cluster == 'map':
-            with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
-                fp.write("#!/bin/sh\n")
-                fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
-                fp.write("mem={0}gb\n".format(mem_pbs_opt))
+    if cluster == 'seq':
+        with open('%s/%s.pbs' % (path + '/' + i, i), 'w') as fp:
+            fp.write("#!/bin/sh\n")
+            fp.write("#PBS -N %s_o\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l cput=1000:00:00\n#PBS -l " % outName)
+            fp.write("mem={0}gb\n".format(mem_pbs_opt))
+            fp.write("#PBS -l nodes=1:ppn=2\n#PBS -l file=100gb\n\n")
+            fp.write("export g09root=/usr/local/apps/\n. $g09root/g09/bsd/g09.profile\n\n")
+            fp.write("scrdir=/tmp/bnp.$PBS_JOBID\n\nmkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
+            fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
+            fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
+    elif cluster == 'map':
+        with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
+            fp.write("#!/bin/sh\n")
+            fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
+            fp.write("mem={0}gb\n".format(mem_pbs_opt))
                 # r410 node
-                fp.write("#PBS -q r410\n")
-                fp.write(
-                    "#PBS -l nodes=1:ppn=4\n#PBS -q gpu\n\nscrdir=/tmp/$USER.$PBS_JOBID\n\n")
-                fp.write(
-                    "mkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
-                fp.write(
-                    """echo "exec_host = $HOSTNAME"\n\nif [[ $HOSTNAME =~ cn([0-9]{3}) ]];\n""")
-                fp.write("then\n")
-                fp.write(
-                    "  nodenum=${BASH_REMATCH[1]};\n  nodenum=$((10#$nodenum));\n  echo $nodenum\n\n")
-                fp.write(
-                    """  if (( $nodenum <= 29 ))\n  then\n    echo "Using AVX version";\n""")
-                fp.write(
-                    "    export g16root=/usr/local/apps/gaussian/g16-b01-avx/\n  elif (( $nodenum > 29 ))\n")
-                fp.write("""  then\n    echo "Using AVX2 version";\n    export g16root=/usr/local/apps/gaussian/g16-b01-avx2/\n  else\n""")
-                fp.write("""    echo "Unexpected condition!"\n    exit 1;\n  fi\nelse\n""")
-                fp.write("""  echo "Not on a compute node!"\n  exit 1;\nfi\n\n""")
-                fp.write("cd $PBS_O_WORKDIR\n. $g16root/g16/bsd/g16.profile\ng16 {0}.com {0}.out".format(baseName, baseName) +
-                        str(output_num) + "\n\nrm -r $scrdir\n")
+            fp.write("#PBS -q r410\n")
+            fp.write(
+                "#PBS -l nodes=1:ppn=4\n#PBS -q gpu\n\nscrdir=/tmp/$USER.$PBS_JOBID\n\n")
+            fp.write(
+                "mkdir -p $scrdir\nexport GAUSS_SCRDIR=$scrdir\nexport OMP_NUM_THREADS=1\n\n")
+            fp.write(
+                """echo "exec_host = $HOSTNAME"\n\nif [[ $HOSTNAME =~ cn([0-9]{3}) ]];\n""")
+            fp.write("then\n")
+            fp.write(
+                "  nodenum=${BASH_REMATCH[1]};\n  nodenum=$((10#$nodenum));\n  echo $nodenum\n\n")
+            fp.write(
+                """  if (( $nodenum <= 29 ))\n  then\n    echo "Using AVX version";\n""")
+            fp.write(
+                "    export g16root=/usr/local/apps/gaussian/g16-b01-avx/\n  elif (( $nodenum > 29 ))\n")
+            fp.write("""  then\n    echo "Using AVX2 version";\n    export g16root=/usr/local/apps/gaussian/g16-b01-avx2/\n  else\n""")
+            fp.write("""    echo "Unexpected condition!"\n    exit 1;\n  fi\nelse\n""")
+            fp.write("""  echo "Not on a compute node!"\n  exit 1;\nfi\n\n""")
+            fp.write("cd $PBS_O_WORKDIR\n. $g16root/g16/bsd/g16.profile\ng16 {0}.com {0}.out".format(baseName, baseName) +
+                    str(output_num) + "\n\nrm -r $scrdir\n")
 
     return
 
@@ -140,7 +140,7 @@ def gatheroptxyzcoords(path,smiles):
                 standnum.append(num)
         print((atomnum,smiles))
         minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
-        print(minxyzguesscoords)   
+      #  print(minxyzguesscoords)   
       #  amountoflinesbelowstand = 6
         # print(data[abc[-1]-6][5:7])
       #  lastatomnum = int(data[abc[-1]-6][5:7])
@@ -244,13 +244,14 @@ def Main():
     for smiles in leftoverdirect:
         try:
             coords = gatheroptxyzcoords(path_to_minao,smiles)
-            print(coords)
+            #print(coords)
             os.mkdir(path_to_apvdz + '/' + smiles)
             optmizedinputfile('anion',path_to_apvdz,coords,smiles)
             pbsfilecreator('seq','','',path_to_apvdz,smiles)
             runjobs(path_to_apvdz,smiles)
         except FileExistsError:
             print('Directory exists already ' + str(smiles))
+            runjobs(path_to_apvdz,smiles)
             pass
         
 
