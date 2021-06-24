@@ -3,7 +3,7 @@ import os
 #path = '/ddn/home8/r2891/chem/quad/anion/naph/cncch/apVDZ/1'
 
 def greper(path):
-    cmd = 'grep ' + " '#N B3LYP/STO-3G OPT' " + path + '>>' + ' error/error.out'
+    cmd = 'grep ' + " 'Error' " + path + '>>' + ' error/error.out'
     os.system(cmd)    
     return 
 
@@ -18,11 +18,15 @@ def readerror(filename):
 
 def amount(filename):
     filename = filename.replace('.out','.com')
-   # print(filename)
+    num = 0
     with open(filename,'r') as file:
         data =file.readlines()
-       
-    return len(data[5:])-1
+#        print(data)
+        if '%mem' in data[0]:
+             num = len(data[5:])-2
+        else:
+             num = len(data[5:])-1       
+    return num
 
 def xyzgrabber(name,amountofatoms ,Type,path):
     print(path)
@@ -54,7 +58,8 @@ def xyzgrabber(name,amountofatoms ,Type,path):
         
     path = path.replace('.out','.com')
     newfile = open(path, 'w+')
-    newfile.write('#N B3LYP/aug-cc-pVDZ OPT SCF=YQC SCF=IntRep  Use=L506 Guess=Mix Guess=Sparse Guess=NoSymm\n')
+    newfile.write('%mem = 3gb \n')
+    newfile.write('#N B3LYP/aug-cc-pVDZ OPT Guess=Sparse SCF=QC  SCF(Conver=7)\n')
     newfile.write('\n')
     newfile.write(str(name) + '\n')
     newfile.write('\n')
@@ -96,7 +101,7 @@ def Main():
     '''
     before you run code make directory error in src
     '''
-    path_to_check_for_errors = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/1Naph'
+    path_to_check_for_errors = '/ddn/home6/r2532/chem/Diss/naph/C2HC2H/apvdz/2Naph'
     greper(path_to_check_for_errors + '/' +'*' + '/' + '*' + '.out')
     readerror('error/error')
     for i in readerror('error/error'):
@@ -108,7 +113,7 @@ def Main():
         if '2Naph' in i:
             name = '2Naph'
         print(xyzgrabber(name,amountofatoms ,'Anion',path_with_errors))
-      #  runjobs(path_with_errors,path_with_errors)
+        runjobs(path_with_errors,path_with_errors)
 
 
 

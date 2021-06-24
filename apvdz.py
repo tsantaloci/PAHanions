@@ -104,20 +104,23 @@ def pandadataframe(path,filelist,energylist):
             i = i.replace(',',' ')
             uptdata.append(i)
         #print(uptdata)
+        remainderdir = []
         for i in range(1,len(uptdata)):
             differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
             print(differ)
+            remainderdir.append(int(uptdata[i-1][0:2])))
             if abs(differ) <= .001:
                 num = int(uptdata[i-1][0:2])
+                print(num + 'SAME')
                # print(str(uptdata[i-1][0:2]))
-                for x in os.listdir(path + '/' + str(num)):
+              #  for x in os.listdir(path + '/' + str(num)):
                     #print(str(uptdata[i-1][0:2]))
-                    os.remove(path +'/'+ str(num)  + '/' + x)
-                    print(num + 'DEL')
-                os.rmdir(path + '/'+ str(num))
-        remainderdir = []
-        for abc in os.listdir(path):
-            remainderdir.append(abc)
+             #       os.remove(path +'/'+ str(num)  + '/' + x)
+                    
+             #   os.rmdir(path + '/'+ str(num))
+        
+      #  for abc in os.listdir(path):
+      #      remainderdir.append(abc)
         #print(data)
              
     return remainderdir
