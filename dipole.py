@@ -93,9 +93,14 @@ def gatheroptxyzcoords(path,smiles):
 def amount(path,smiles):
     with open(path + '/' + str(smiles) +'/' + str(smiles) + '.com','r') as file:
         data =file.readlines()
+        if '%mem' in data[0]:
+             num = len(data[5:])-2
+        else:
+             num = len(data[5:])-1       
+    return num
 
 
-    return len(data[5:])-1
+    
 
 def xyzgrabber(amountofatoms,smiles,xyzcoords,path):
     data = xyzcoords
@@ -120,8 +125,10 @@ def xyzgrabber(amountofatoms,smiles,xyzcoords,path):
     newfile.write('\n')
     newfile.write('-1 1\n')    
     for i in total2:
-        newfile.write(str(i)) 
-        newfile.write('\n')  
+        if '-----' not in i:
+
+            newfile.write(str(i)) 
+            newfile.write('\n')  
     newfile.write('\n') 
     newfile.close()
     
@@ -201,8 +208,8 @@ def Main():
         otherfunctional = 'O'
     basis = 'apvdz'
     typeofnaph = '2Naph/'
-    path_to_apvdz_opt = '/ddn/home6/r2532/chem/Diss/naph/C2HC2H/apvdz/2Naph'
-    path_dipole_bound_anion = '/ddn/home6/r2532/chem/Diss/naph/C2HC2H/EOM/2Naph'
+    path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/1Naph'
+    path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/1Naph'
     checkifreadyfornextstep(path_to_apvdz_opt)
     os.chdir(path_to_apvdz_opt)
     leftoverdirect = []
@@ -217,7 +224,7 @@ def Main():
         
         atomnum = amount(path_to_apvdz_opt,smiles)
         os.mkdir(smiles)
-        print(smiles)
+        print(atomnum)
         pbsfilecreator('seq',path_dipole_bound_anion,smiles)
         coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
         xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
@@ -225,7 +232,7 @@ def Main():
         '''
         when us are ready to submit jobs uncommit runjobs 
         '''
-        runjobs(path_dipole_bound_anion,smiles)
+       # runjobs(path_dipole_bound_anion,smiles)
 
 
 
