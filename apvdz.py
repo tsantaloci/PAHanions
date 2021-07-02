@@ -19,7 +19,7 @@ def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
     smiles = str(smiles)
 
     if cluster == 'seq':
-        with open('%s/%s.pbs' % (path + '/' + i, i), 'w') as fp:
+        with open('%s/%s.pbs' % (path + '/' + smiles, smiles), 'w') as fp:
             fp.write("#!/bin/sh\n")
             fp.write("#PBS -N %s_o\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l cput=1000:00:00\n#PBS -l " % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
@@ -108,10 +108,10 @@ def pandadataframe(path,filelist,energylist):
         for i in range(1,len(uptdata)):
             differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
             print(differ)
-            remainderdir.append(int(uptdata[i-1][0:2])))
+            remainderdir.append(int(uptdata[i-1][0:2]))
             if abs(differ) <= .001:
                 num = int(uptdata[i-1][0:2])
-                print(num + 'SAME')
+                print(str(num) + 'SAME')
                # print(str(uptdata[i-1][0:2]))
               #  for x in os.listdir(path + '/' + str(num)):
                     #print(str(uptdata[i-1][0:2]))
@@ -199,9 +199,9 @@ def Main():
     otherfunctional = ''
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/minao/2Naph/2Naph'
-    path_to_apvdz = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/2Naph'
-    path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
+    path_to_minao = '/ddn/home8/r2891/chem/quad/naph/CNC2H/radicals/minao/2Naph'
+    path_to_apvdz = '/ddn/home8/r2891/chem/quad/naph/CNC2H/radicals/apVDZ/2Naph'
+    path_to_src = '/ddn/home8/r2891/chem/quad/src'
     name = path_to_apvdz.split('/')
    # print(name)
     for i in name:
@@ -248,9 +248,9 @@ def Main():
         try:
             coords = gatheroptxyzcoords(path_to_minao,smiles)
             #print(coords)
-            os.mkdir(path_to_apvdz + '/' + smiles)
-            optmizedinputfile('anion',path_to_apvdz,coords,smiles)
-            pbsfilecreator('seq','','',path_to_apvdz,smiles)
+            os.mkdir(str(path_to_apvdz) + '/' + str(smiles))
+            optmizedinputfile('radical',path_to_apvdz,coords,str(smiles))
+            pbsfilecreator('seq','','',path_to_apvdz,str(smiles))
             runjobs(path_to_apvdz,smiles)
         except FileExistsError:
             print('Directory exists already ' + str(smiles))
