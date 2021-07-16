@@ -184,7 +184,7 @@ def energydict(path,path_to_src,smiles):
     totenergylist = []
     filnumber = []
     for i in range(smiles):
-        print(i)
+        i
 
         with open(path +'/' + str(i) + '/' + str(i)+ '.out','r') as file:
             data = file.readlines()
@@ -210,15 +210,6 @@ def energydict(path,path_to_src,smiles):
     return filnumber, totenergylist
 
 
-
-
-
-
-
-
-
-
-
 def pandadataframe(path,filelist,energylist):
     d = {'filename': filelist, 'energy (kcal/mol)': energylist}
     df = pd.DataFrame(data=d).sort_values('energy (kcal/mol)')
@@ -234,11 +225,12 @@ def pandadataframe(path,filelist,energylist):
         remainderdir = []
         for i in range(1,len(uptdata)):
             differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
-            print(differ)
+            print(str(i) + ' ' + str(differ))
             remainderdir.append(int(uptdata[i-1][0:2]))
             if abs(differ) <= .0001:
                 num = int(uptdata[i-1][0:2])
                 print(str(num) + '  SAME')
+    return remainderdir
 
 
 def Main():
@@ -308,7 +300,7 @@ def relativeenergyweeder():
     
 
     filelist, totalenergylist = energydict(path_to_minao,path_to_src,14)
-    pandadataframe(path_to_minao,filelist,totalenergylist)
+    print(pandadataframe(path_to_minao,filelist,totalenergylist))
 
     return
 relativeenergyweeder()
