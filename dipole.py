@@ -1,8 +1,77 @@
 import os
+import pandas as pd
 
 
 
 #types = 'C2HOH'
+def energydict(path,path_to_src):
+    '''
+    gather all the energies from the output files
+
+    '''
+    #totenergydict = {}
+    totenergylist = []
+    filnumber = []
+    os.chdir(path)
+    for i in os.listdir():
+        print(i)
+
+        with open(str(i) + '/' + str(i)+ '.out','r') as file:
+            data = file.readlines()
+                    #print(data)
+                    
+            for x in data:
+                if 'Move to dipole moment step' in x :
+                    iterenergy = []
+                    for num in data:
+                        if 'SCF Done' in num:
+                                
+                            iterenergy.append(num)
+                                #  print((i,iterenergy[-1][23:23+21]))
+                    #    print(i,iterenergy[-1][23:23+21])
+                        # print(x)
+                #print(len(iterenergy))
+        #  print(iterenergy)
+        
+                    totenergylist.append(float(iterenergy[-1][23:23+21])*627.509) #kcal/mol
+                    filnumber.append(i) 
+
+    os.chdir(path_to_src)
+    return filnumber, totenergylist
+
+def pandadataframe(filelist,energylist):
+    d = {'filename': filelist, 'energy (kcal/mol)': energylist}
+    df = pd.DataFrame(data=d).sort_values('energy (kcal/mol)')
+    df.to_csv('energy.csv',index=False)
+    with open('energy'+ '.csv','r') as file:
+        data = file.readlines()
+        data.pop(0)
+        uptdata = []
+        for i in data:
+            i = i.replace(',',' ')
+            uptdata.append(i)
+        #print(uptdata)
+        remainderdir = []
+        for i in range(1,len(uptdata)):
+            differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
+            print(differ)
+            remainderdir.append(int(uptdata[i-1][0:2]))
+            if abs(differ) <= .0005:
+                num = int(uptdata[i-1][0:2])
+                print(str(num) + 'SAME')
+               # print(str(uptdata[i-1][0:2]))
+              #  for x in os.listdir(path + '/' + str(num)):
+                    #print(str(uptdata[i-1][0:2]))
+             #       os.remove(path +'/'+ str(num)  + '/' + x)
+                    
+             #   os.rmdir(path + '/'+ str(num))
+        
+      #  for abc in os.listdir(path):
+      #      remainderdir.append(abc)
+        #print(data)
+             
+    return remainderdir
+
 
 
 def checkifreadyfornextstep(path):
@@ -210,6 +279,8 @@ def Main():
     typeofnaph = '2Naph/'
     path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/1Naph'
     path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/1Naph'
+    path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
+
     checkifreadyfornextstep(path_to_apvdz_opt)
     os.chdir(path_to_apvdz_opt)
     leftoverdirect = []
@@ -220,21 +291,35 @@ def Main():
             if 'Move to dipole moment step' in i:
                 leftoverdirect.append(smiles)
     os.chdir(path_dipole_bound_anion)
-    for smiles in leftoverdirect:
+
+
+    filelist,energylist = energydict(path_to_apvdz_opt,path_to_src)
+    print(pandadataframe(filelist,energylist))
+
+
+
+
+
+
+    
+
+    for smiles in pandadataframe(filelist,energylist):
+        smiles = str(smiles)
+        print(smiles)
         
         atomnum = amount(path_to_apvdz_opt,smiles)
-        os.mkdir(smiles)
+       # os.mkdir(smiles)
         print(atomnum)
         pbsfilecreator('seq',path_dipole_bound_anion,smiles)
         coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
         xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
-       # print(coords)
-        '''
-        when us are ready to submit jobs uncommit runjobs 
-        '''
+        print(coords)
+        
+      #  when us are ready to submit jobs uncommit runjobs 
+        
        # runjobs(path_dipole_bound_anion,smiles)
 
-
+    
 
     return
 Main()

@@ -56,6 +56,9 @@ def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
 
     return
 
+
+
+
 def energydict(path,path_to_src):
     '''
     gather all the energies from the output files
@@ -109,7 +112,7 @@ def pandadataframe(path,filelist,energylist):
             differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
             print(differ)
             remainderdir.append(int(uptdata[i-1][0:2]))
-            if abs(differ) <= .001:
+            if abs(differ) <= .0005:
                 num = int(uptdata[i-1][0:2])
                 print(str(num) + 'SAME')
                # print(str(uptdata[i-1][0:2]))

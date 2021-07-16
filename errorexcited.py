@@ -8,7 +8,6 @@ import os
 
 
 
-path_to_exc_calcs = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/EOM/apvDZ+8s6p2d/1Naph'
 
 def dipolemomentgrabber(filename,num):
     dipolecoords = []

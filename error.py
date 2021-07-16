@@ -43,6 +43,7 @@ def xyzgrabber(name,amountofatoms ,Type,path):
             if 'Standard orientation' in line:
                 standnum.append(num)
         atomnum = int(amountofatoms)
+        print(atomnum)
         xyzcoords = data[standnum[-1]+5:standnum[-1]+atomnum+5]        
         for i in xyzcoords:
             a = i.replace('  0  ',' ')

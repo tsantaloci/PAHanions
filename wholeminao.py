@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 
 
@@ -49,17 +50,16 @@ def xyzcoordsfilegen(path,smiles):
     '''
     #if position == '1':
     for i in range(len(smiles)):
-    #    print(path + '/' +str(i) + '/' + str(i)+'.smi')
+  
        # os.mkdir(path + '/' +str(i)) 
-          #  os.chdir('1Naph/'+ str(i))
+          
         
         filename = open(path + '/' +str(i) + '/' + str(i)+'.smi','w+')
         filename.write(str(smiles[i]))
         filename.close()
-            #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
+            
         cmd = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + '/' + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
         cmd2 = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + '-O' + path + '/' + str(i) +'/' + str(i) + '.png '
-          #  cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' +  path + str(i) +'/' + str(i) + '.com '+ ' --gen3D' 
             
         print(cmd)
         os.system(cmd)
@@ -71,6 +71,21 @@ def xyzcoordsfilegen(path,smiles):
 
 
     return
+
+def smilelister(path_to_smi_file,smiles):
+    deprotanlist = []
+    for i in range(len(smiles)):
+        filename = open(path_to_smi_file + '/' +str(i) + '/' + str(i)+'.smi','r' )
+        data = filename.readlines()
+        data = str(data[0])
+        deprotanlist.append(data)
+    print(deprotanlist)
+    print(len(deprotanlist))
+
+    
+
+
+    return deprotanlist
 
 def mininputfilecreator(path,Type,smiles):
     '''
@@ -159,6 +174,73 @@ def pbsfilecreator(cluster,path,smiles,types,typeofnaph):
 
 
 
+
+def energydict(path,path_to_src,smiles):
+    '''
+    gather all the energies from the output files
+
+    '''
+    #totenergydict = {}
+    totenergylist = []
+    filnumber = []
+    for i in range(smiles):
+        print(i)
+
+        with open(path +'/' + str(i) + '/' + str(i)+ '.out','r') as file:
+            data = file.readlines()
+                    #print(data)
+                    
+            for x in data:
+                if 'Normal termination' in x :
+                    iterenergy = []
+                    for num in data:
+                        if 'SCF Done' in num:
+                                
+                            iterenergy.append(num)
+                                #  print((i,iterenergy[-1][23:23+21]))
+                    #    print(i,iterenergy[-1][23:23+21])
+                        # print(x)
+                #print(len(iterenergy))
+     #   print(iterenergy)
+        
+                    totenergylist.append(float(iterenergy[-1][23:23+21])*627.509) #kcal/mol
+                    filnumber.append(i) 
+
+  
+    return filnumber, totenergylist
+
+
+
+
+
+
+
+
+
+
+
+def pandadataframe(path,filelist,energylist):
+    d = {'filename': filelist, 'energy (kcal/mol)': energylist}
+    df = pd.DataFrame(data=d).sort_values('energy (kcal/mol)')
+    df.to_csv('energy.csv',index=False)
+    with open('energy'+ '.csv','r') as file:
+        data = file.readlines()
+        data.pop(0)
+        uptdata = []
+        for i in data:
+            i = i.replace(',',' ')
+            uptdata.append(i)
+        #print(uptdata)
+        remainderdir = []
+        for i in range(1,len(uptdata)):
+            differ = float(uptdata[i-1][2:])-float(uptdata[i][2:])
+            print(differ)
+            remainderdir.append(int(uptdata[i-1][0:2]))
+            if abs(differ) <= .0001:
+                num = int(uptdata[i-1][0:2])
+                print(str(num) + '  SAME')
+
+
 def Main():
     
     nonfunctionalizedsmi = 'c1cccc2c1cccc2'
@@ -168,7 +250,7 @@ def Main():
     otherfunctional = ''
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/minao2/Naph'
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/minao2/naph'
     name = path_to_minao.split('/')
     #print(name)
     for i in name:
@@ -201,16 +283,32 @@ def Main():
     allnaphstruct = aa+aa2
     print(' ')
     print(len(aa2))
-    xyzcoordsfilegen(path_to_minao,allnaphstruct)
-    mininputfilecreator(path_to_minao,'Radical',allnaphstruct)  
-    
+   # xyzcoordsfilegen(path_to_minao,allnaphstruct)
+   # mininputfilecreator(path_to_minao,'Radical',allnaphstruct)  
+    smiles = smilelister(path_to_minao,allnaphstruct)
 
     #print(naphdeproton(aa))
   #  print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
   #  xyzcoordsfilegen(path_to_minao,smiles)
        
     pbsfilecreator('map',path_to_minao,allnaphstruct,types,typeofnaph)
+    
+
    # runjobs(path_to_minao,len(smiles))
 
+    return smiles
+#Main()
+
+#### When Jobs are done
+def relativeenergyweeder():
+
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/minao2/naph'
+    path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
+
+    
+
+    filelist, totalenergylist = energydict(path_to_minao,path_to_src,14)
+    pandadataframe(path_to_minao,filelist,totalenergylist)
+
     return
-Main()
+relativeenergyweeder()

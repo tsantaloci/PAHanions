@@ -275,12 +275,12 @@ def Main():
     otherfunctional = ''
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/OHOH/minao/2Naph'
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/minao2/1Naph'
     name = path_to_minao.split('/')
-    print(name)
+    #print(name)
     for i in name:
         i = i.upper()
-        print(i)
+     #   print(i)
         types = i
         if i == 'OHOH':
             onefunctional = 'O'
@@ -313,13 +313,16 @@ def Main():
     #print(types)
     #print(typeofnaph)
     
-    aa = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)
+    aa = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,'2Naph/')
+    aa2 = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,'1Naph/')
+    #print(aa)
+    #print(aa2)
     print(naphdeproton(aa))
-    print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
-    smiles = smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))
-    xyzcoordsfilegen(path_to_minao,smiles)
-    mininputfilecreator(path_to_minao,'Radical',smiles)     
-    pbsfilecreator('seq',path_to_minao,smiles,types,typeofnaph)
+  #  print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
+  #  smiles = smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))
+  #  xyzcoordsfilegen(path_to_minao,smiles)
+  #  mininputfilecreator(path_to_minao,'Radical',smiles)     
+  #  pbsfilecreator('seq',path_to_minao,smiles,types,typeofnaph)
    # runjobs(path_to_minao,len(smiles))
 
     return
