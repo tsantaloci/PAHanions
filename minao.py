@@ -10,23 +10,82 @@ import subprocess
 import shutil
 
 
-def functionalgroupadderbenz(amountofrings,x,y,position):
-    if amountofrings == 'c1ccccc1' and position == 'ortho':
-        difunct = onefunctional[::-1] +'(2)' + '.' + 'c(2)1ccccc(3)1' + '.' + otherfunctional[::-1] + '(3)'   
-   
-    elif amountofrings == 'c1ccccc1' and position == 'meta':
-        difunct = onefunctional[::-1] +'(2)' + '.' + 'c1c(2)cccc(3)1' + '.' + otherfunctional[::-1] + '(3)'  
- 
-    elif  amountofrings == 'c1ccccc1' and position == 'para':
-        difunct = onefunctional[::-1] +'(2)' + '.' + 'c1cc(2)ccc(3)1' + '.' + otherfunctional[::-1] + '(3)' 
-    else:
-        print('change the position argument to ortho') 
+def functionalgroupadderbenz(amountofrings,x,y):
+    #if amountofrings == 'c1ccccc1' and position == 'ortho':
+    #    print(amountofrings)
+    #print((amountofrings,'Aaaaaaaaa'))
+    #print((position,'AAAAAAAAAAAA'))
+                        
+    if amountofrings == 'c1ccccc1':
+        placeOne = x[::-1] +'(2)' + '.' + 'c(2)1ccccc1' + '.' + y[::-1] + '(3)'
+        placeOne = list(placeOne)
+        print(placeOne)
+        difunct = []
+        for num,i in enumerate(placeOne):
+            if i == 'c':
+                placeOne[num] = 'c(3)'
+                final = ''
+                for i in placeOne:
+                        final += i
+                placeOne[num] = 'c'
+                combosmiles = []
+                combosmiles.append(final)
+                for i in combosmiles:
+                    if ')(' in i or 'c(3)2c1' in i or 'c2c(3)1' in i :
+                        combosmiles.remove(i)
+                    else:
+                        difunct.append(i)
+    if amountofrings == 'c1cccc2c1cccc2' and typeofnaph == '2Naph/':
+        placeOne = x[::-1] +'(3)' + '.' + 'c1c(3)ccc2c1cccc2' + '.' + y[::-1] + '(4)'
+        placeOne = list(placeOne)
+        difunct = []
+        for num,i in enumerate(placeOne):
+            if i == 'c':
+                placeOne[num] = 'c(4)'
+                final = ''
+                for i in placeOne:
+                        final += i
+                placeOne[num] = 'c'
+                combosmiles = []
+                combosmiles.append(final)
+                for i in combosmiles:
+                    if ')(' in i or 'c(4)2c1' in i or 'c2c(4)1' in i :
+                        combosmiles.remove(i)
+                    else:
+                        difunct.append(i)
+
+
 
     return difunct
 
 
 
 def difunctionalNaph(amountofrings,x,y,typeofnaph):
+    if amountofrings == 'c1ccccc1':
+        placeOne = x[::-1] +'(2)' + '.' + 'c(2)1ccccc1' + '.' + y[::-1] + '(3)'
+        placeOne = list(placeOne)
+        print(placeOne)
+        difunct = []
+        for num,i in enumerate(placeOne):
+            if i == 'c':
+                placeOne[num] = 'c(3)'
+                final = ''
+                for i in placeOne:
+                        final += i
+                placeOne[num] = 'c'
+                combosmiles = []
+                combosmiles.append(final)
+                for i in combosmiles:
+                    if ')(' in i or 'c(3)2c1' in i or 'c2c(3)1' in i :
+                        combosmiles.remove(i)
+                    else:
+                        difunct.append(i)
+
+
+
+
+
+
     if amountofrings == 'c1cccc2c1cccc2' and typeofnaph == '1Naph/':
         placeOne = x[::-1] +'(3)' + '.' + 'c(3)1cccc2c1cccc2' + '.' + y[::-1] + '(4)'
         placeOne = list(placeOne)
@@ -150,21 +209,35 @@ def xyzcoordsfilegen(path,smiles):
     '''
     #if position == '1':
     for i in range(len(smiles)):
+        try:
     #    print(path + '/' +str(i) + '/' + str(i)+'.smi')
-        os.mkdir(path + '/' +str(i)) 
-          #  os.chdir('1Naph/'+ str(i))
-        
-        filename = open(path + '/' +str(i) + '/' + str(i)+'.smi','w+')
-        filename.write(str(smiles[i]))
-        filename.close()
-            #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-        cmd = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + '/' + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
-          #  cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' +  path + str(i) +'/' + str(i) + '.com '+ ' --gen3D' 
+            os.mkdir(path + '/' +str(i)) 
+            #  os.chdir('1Naph/'+ str(i))
             
-        print(cmd)
-        os.system(cmd)
+            filename = open(path + '/' +str(i) + '/' + str(i)+'.smi','w+')
+            filename.write(str(smiles[i]))
+            filename.close()
+                #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
+            cmd = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + '/' + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
+            #  cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' +  path + str(i) +'/' + str(i) + '.com '+ ' --gen3D' 
+                
+            print(cmd)
+            os.system(cmd)
 
-        print(smiles[i])
+            print(smiles[i])
+        except FileExistsError:
+            filename = open(path + '/' +str(i) + '/' + str(i)+'.smi','w+')
+            filename.write(str(smiles[i]))
+            filename.close()
+                #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
+            cmd = 'obabel -ismi ' + path + '/' + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' + path + '/' + str(i) +'/' + str(i) + '.com ' + ' --gen3D' 
+            #  cmd = 'obabel -ismi ' + path + str(i) +'/' + str(i) + '.smi ' + ' -oxyz  -O ' +  path + str(i) +'/' + str(i) + '.com '+ ' --gen3D' 
+                
+            print(cmd)
+            os.system(cmd)
+
+            print(smiles[i])
+
 
 
 
@@ -228,7 +301,7 @@ def pbsfilecreator(cluster,path,smiles,types,typeofnaph):
                 fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
                 fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
         elif cluster == 'map':
-            with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
+            with open('%s/%s.pbs'  % (path + '/' + i, i), 'w') as fp:
                 fp.write("#!/bin/sh\n")
                 fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
                 fp.write("mem={0}gb\n".format(mem_pbs_opt))
@@ -268,7 +341,8 @@ def runjobs(name,number):
 
 def Main():
     
-    nonfunctionalizedsmi = 'c1cccc2c1cccc2'
+   # nonfunctionalizedsmi = 'c1cccc2c1cccc2'
+    nonfunctionalizedsmi = 'c1ccccc1'
     types = ''
     basis = 'minao'
     onefunctional = ''
@@ -276,6 +350,7 @@ def Main():
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
     path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/minao2/1Naph'
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/Benzene/CNCN/minao/1Naph'
     name = path_to_minao.split('/')
     #print(name)
     for i in name:
@@ -301,7 +376,10 @@ def Main():
             onefunctional = 'C#C'
             otherfunctional = 'O'
     for x in name:
+        
         x = x.upper()
+        if x == 'BENZENE' or x == 'BENZ':
+            typeofnaph == 'Benz/'
         if x == '1NAPH':
             typeofnaph = '1Naph/'
         if x == '2NAPH':
@@ -312,18 +390,25 @@ def Main():
     #print(otherfunctional)
     #print(types)
     #print(typeofnaph)
+    #aa = functionalgroupadderbenz(nonfunctionalizedsmi,onefunctional,otherfunctional)
+
     
-    aa = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,'2Naph/')
-    aa2 = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,'1Naph/')
+    aa = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)
+   # aa2 = difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,'1Naph/')
     #print(aa)
     #print(aa2)
-    print(naphdeproton(aa))
-  #  print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
-  #  smiles = smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))
-  #  xyzcoordsfilegen(path_to_minao,smiles)
-  #  mininputfilecreator(path_to_minao,'Radical',smiles)     
-  #  pbsfilecreator('seq',path_to_minao,smiles,types,typeofnaph)
-   # runjobs(path_to_minao,len(smiles))
+  #  print(len(naphdeproton(aa)))
+    #print(len(smileweeder(naphdeproton(aa))))
+    smiles = smileweeder(naphdeproton(aa))
+    print(len(smiles))
+    
+   # print(len(smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))))
+    #smiles = smileweeder(naphdeproton(difunctionalNaph(nonfunctionalizedsmi,onefunctional,otherfunctional,typeofnaph)))
+    #smiles = smileweeder(naphdeproton(aa))
+    xyzcoordsfilegen(path_to_minao,smiles)
+    mininputfilecreator(path_to_minao,'Anion',smiles)     
+    pbsfilecreator('map',path_to_minao,smiles,types,typeofnaph)
+    runjobs(path_to_minao,len(smiles))
 
     return
 Main()

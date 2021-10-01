@@ -104,7 +104,7 @@ def pbsfilecreator(cluster,path,smiles):
             fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
             fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
     elif cluster == 'map':
-        with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
+        with open('%s/%s.pbs' % (path + '/' + smiles, smiles), 'w') as fp:
             fp.write("#!/bin/sh\n")
             fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
@@ -131,33 +131,64 @@ def pbsfilecreator(cluster,path,smiles):
 
     return
 
-def gatheroptxyzcoords(path,smiles):
-    atomnum = 0
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.com') as file:
-        data = file.readlines()
-        atomnum = len(data[5:])-1
 
 
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
-   # with open(path + '/' + '0' + + '/' + '0' + '.out' ) as file:
-        data = file.readlines()
-        standnum = []
-        for num,i in enumerate(data):
-            if  'Standard orientation' in data[num]:
-                standnum.append(num)
-       # print((atomnum,smiles))
-        minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
-       # print(minxyzguesscoords)   
-      #  amountoflinesbelowstand = 6
-        # print(data[abc[-1]-6][5:7])
-      #  lastatomnum = int(data[abc[-1]-6][5:7])
-      #  print(lastatomnum)
+def xyzgrabber(name,path_1,path_2):
+    print((path_1,'AAAAAAAAAA'))
+    with open(path_1 + '/' + str(name) + '/' + str(name) + '.out','r') as file:
+        data =file.readlines()
+        #print(data)
+
+        #print(ycoord)
+        total2 = []
+        startgeom = []
+        endgeom = []
+        for num,line in enumerate(data):
+            zcoord = data[num][33:]
+            #print(zcoord)
+            if 'Standard orientation' in line:
+                startgeom.append(num)
+            if '---------------------------------------------------------------------' in line:
+                endgeom.append(num)
+
+        xyzcoords = data[startgeom[-1]+5:endgeom[-1]]
+      #  for i in xyzcoords:
+      #      print(i)
+     #   atomnum = int(amountofatoms)
+     #   print(atomnum)
         
-      #  minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
-        file.close()
+        #xyzcoords = data[standnum[-1]+5:standnum[-1]+atomnum+5]        
+        for i in xyzcoords:
+           # print(i)
+            a = i.replace('  0  ',' ')
+            atom = a[10:20]
+            xcoord = a[30:45]
+            ycoord = a[43:56]
+            zcoord = 0.0
+            
+        #    zcoord = 0.000
+            total = atom + '   ' +  str(xcoord) +'   ' +  str(ycoord) + '   ' + str(zcoord)
 
+            #print(total)
+            total2.append(total)
+    newfile = open(path_2 + '/' +str(name) +'/' + str(name)  + '.com', 'w+')
+    newfile.write('#N B3LYP/aug-cc-pVDZ SP SCF(conver=6) \n')
+    newfile.write('\n')
+    newfile.write('aaaa'+  '\n')
+    newfile.write('\n')
+    newfile.write('-1 1\n') 
+  #  print(total2)   
+    for i in total2:
+        print(i)
+        newfile.write(str(i))
+        newfile.write('\n')
+ 
+    newfile.write('\n') 
+    newfile.close()
+        #    for i in total2:
+        #        print(i)
+    return total2
 
-    return minxyzguesscoords
 
 def amount(path,smiles):
     with open(path + '/' + str(smiles) +'/' + str(smiles) + '.com','r') as file:
@@ -171,37 +202,7 @@ def amount(path,smiles):
 
     
 
-def xyzgrabber(amountofatoms,smiles,xyzcoords,path):
-    data = xyzcoords
-    #print(data)
-    total2 = []
-    standnum = []     
-    for i in data:
-        a = i.replace('  0  ',' ')
-        atom = a[10:20]
-        xcoord = a[30:45]
-        ycoord = a[43:56]
-        
-        zcoord = 0.000
-        total = atom + '   ' +  str(xcoord) +'   ' +  str(ycoord) + '   ' + str(zcoord)
-        total2.append(total)
-        
-    
-    newfile = open(path + '/' +str(smiles) +'/' + str(smiles)  + '.com', 'w+')
-    newfile.write('#N B3LYP/aug-cc-pVDZ SP SCF(conver=6) \n')
-    newfile.write('\n')
-    newfile.write('aaaa'+  '\n')
-    newfile.write('\n')
-    newfile.write('-1 1\n')    
-    for i in total2:
-        if '-----' not in i:
 
-            newfile.write(str(i)) 
-            newfile.write('\n')  
-    newfile.write('\n') 
-    newfile.close()
-    
-    return 
 
 
 
@@ -277,24 +278,12 @@ def Main():
         otherfunctional = 'O'
     basis = 'apvdz'
     typeofnaph = '2Naph/'
-    path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/1Naph'
-    path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/1Naph'
+    path_to_apvdz_opt = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/1Naph'
+    path_dipole_bound_anion = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/dipole/1Naph'
     path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
 
-    checkifreadyfornextstep(path_to_apvdz_opt)
-    os.chdir(path_to_apvdz_opt)
-    leftoverdirect = []
-    for smiles in os.listdir():
-        filename = open(str(smiles) + '/' + str(smiles) + '.out')
-        data = filename.readlines()
-        for i in data:
-            if 'Move to dipole moment step' in i:
-                leftoverdirect.append(smiles)
-    os.chdir(path_dipole_bound_anion)
 
-
-    filelist,energylist = energydict(path_to_apvdz_opt,path_to_src)
-    print(pandadataframe(filelist,energylist))
+    leftoverdirect = [1,2,3,4,5,6]
 
 
 
@@ -303,17 +292,18 @@ def Main():
 
     
 
-    for smiles in pandadataframe(filelist,energylist):
-        smiles = str(smiles)
-        print(smiles)
-        
-        atomnum = amount(path_to_apvdz_opt,smiles)
-       # os.mkdir(smiles)
-        print(atomnum)
-        pbsfilecreator('seq',path_dipole_bound_anion,smiles)
-        coords = gatheroptxyzcoords(path_to_apvdz_opt,smiles)
-        xyzgrabber(atomnum,smiles,coords,path_dipole_bound_anion)
-        print(coords)
+    for smiles in leftoverdirect:
+        try:
+            smiles = str(smiles)
+            os.mkdir(path_dipole_bound_anion + '/' + str(smiles))
+            print(smiles)       
+            pbsfilecreator('map',path_dipole_bound_anion,smiles)
+            xyzgrabber(smiles,path_to_apvdz_opt,path_dipole_bound_anion)
+        except FileExistsError:
+            print(smiles)       
+            pbsfilecreator('map',path_dipole_bound_anion,smiles)
+            xyzgrabber(smiles,path_to_apvdz_opt,path_dipole_bound_anion)
+
         
       #  when us are ready to submit jobs uncommit runjobs 
         

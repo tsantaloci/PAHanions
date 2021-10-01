@@ -19,7 +19,7 @@ def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
     smiles = str(smiles)
 
     if cluster == 'seq':
-        with open('%s/%s.pbs' % (path + '/' + smiles, smiles), 'w') as fp:
+        with open('%s/%s.pbs' % (path + '/' + smiles, smiles), 'w+') as fp:
             fp.write("#!/bin/sh\n")
             fp.write("#PBS -N %s_o\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l cput=1000:00:00\n#PBS -l " % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
@@ -29,7 +29,7 @@ def pbsfilecreator(cluster,types,typeofnaph,path,smiles):
             fp.write("printf 'exec_host = '\nhead -n 1 $PBS_NODEFILE\n\ncd $PBS_O_WORKDIR\n\n")
             fp.write("/usr/local/apps/bin/g09setup %s.com %s.out%s" % (baseName, baseName, output_num))
     elif cluster == 'map':
-        with open('%s/%s.pbs' % (dir_name, baseName), 'w') as fp:
+        with open('%s/%s.pbs' % (path + '/' + smiles, smiles), 'w+') as fp:
             fp.write("#!/bin/sh\n")
             fp.write("#PBS -N %s\n#PBS -S /bin/bash\n#PBS -j oe\n#PBS -m abe\n#PBS -l" % outName)
             fp.write("mem={0}gb\n".format(mem_pbs_opt))
@@ -130,22 +130,62 @@ def pandadataframe(path,filelist,energylist):
 
 #filelist, totalenergylist = energydict(path,smileweeder())
 #pandadataframe(path,filelist, totalenergylist)
-def gatheroptxyzcoords(path,smiles):
-    atomnum = 0
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.com') as file:
-        data = file.readlines()
-        atomnum = len(data[5:])-1
+def xyzgrabber(name,path):
+    print((path,'AAAAAAAAAA'))
+    with open(path + '/' + str(name) + '/' + str(name) + '.out','r') as file:
+        data =file.readlines()
+        #print(data)
+
+        #print(ycoord)
+        total2 = []
+        startgeom = []
+        endgeom = []
+        for num,line in enumerate(data):
+            zcoord = data[num][33:]
+            #print(zcoord)
+            if 'Standard orientation' in line:
+                startgeom.append(num)
+            if '---------------------------------------------------------------------' in line:
+                endgeom.append(num)
+
+        xyzcoords = data[startgeom[-1]+5:endgeom[-1]]
+      #  for i in xyzcoords:
+      #      print(i)
+     #   atomnum = int(amountofatoms)
+     #   print(atomnum)
+        
+        #xyzcoords = data[standnum[-1]+5:standnum[-1]+atomnum+5]        
+        for i in xyzcoords:
+            a = i.replace('  0  ',' ')
+            atom = a[10:20]
+            xcoord = a[30:45]
+            ycoord = a[43:56]
+            zcoord = 0.0
+            
+        #    zcoord = 0.000
+            total = atom + '   ' +  str(xcoord) +'   ' +  str(ycoord) + '   ' + str(zcoord)
+           # print(total)
+            total2.append(total)
+        #    for i in total2:
+        #        print(i)
+        return total2
+
+#def gatheroptxyzcoords(path,smiles):
+#    atomnum = 0
+#    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.com') as file:
+#        data = file.readlines()
+#        atomnum = len(data[5:])-1
 
 
-    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
+#    with open(path +'/' + str(smiles) + '/' + str(smiles) + '.out') as file:
    # with open(path + '/' + '0' + + '/' + '0' + '.out' ) as file:
-        data = file.readlines()
-        standnum = []
-        for num,i in enumerate(data):
-            if  'Standard orientation' in data[num]:
-                standnum.append(num)
-        print((atomnum,smiles))
-        minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
+#        data = file.readlines()
+#        standnum = []
+#        for num,i in enumerate(data):
+#            if  'Standard orientation' in data[num]:
+#                standnum.append(num)
+#        print((atomnum,smiles))
+#        minxyzguesscoords = data[standnum[-1]+5:standnum[-1]+atomnum+5] 
       #  print(minxyzguesscoords)   
       #  amountoflinesbelowstand = 6
         # print(data[abc[-1]-6][5:7])
@@ -153,10 +193,10 @@ def gatheroptxyzcoords(path,smiles):
       #  print(lastatomnum)
         
       #  minxyzguesscoords = data[abc[-1]-lastatomnum-amountoflinesabovepop:abc[-1]-amountoflinesabovepop]
-        file.close()
+ #       file.close()
 
 
-    return minxyzguesscoords
+ #   return minxyzguesscoords
 
 
 
@@ -202,9 +242,10 @@ def Main():
     otherfunctional = ''
     typeofnaph = ''
     #path = '../' + str(types) + '/' + str(basis) + '/' + typeofnaph 
-    path_to_minao = '/ddn/home8/r2891/chem/quad/naph/CNC2H/radicals/minao/2Naph'
-    path_to_apvdz = '/ddn/home8/r2891/chem/quad/naph/CNC2H/radicals/apVDZ/2Naph'
-    path_to_src = '/ddn/home8/r2891/chem/quad/src'
+    path_to_minao = '/Users/tsantaloci/Desktop/PAHcode/CNCN/minao/1Naph'
+    path_to_apvdz = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/1Naph'
+    path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
+    typeofcluster = 'seq'
     name = path_to_apvdz.split('/')
    # print(name)
     for i in name:
@@ -236,26 +277,34 @@ def Main():
         if x == '2NAPH':
             typeofnaph = '2Naph/'
 
-
+    
     #print(onefunctional)
     #print(otherfunctional)
     #print(types)
     #p
 
         #pbsfilecreator('map',path,smiles)
-    filelist, totalenergylist = energydict(path_to_minao,path_to_src)
+   # filelist, totalenergylist = energydict(path_to_minao,path_to_src)
    # print(len(smiles))
-    leftoverdirect = pandadataframe(path_to_minao,filelist, totalenergylist)
-    checkifreadyfornextstep(path_to_minao)
+  #  leftoverdirect = pandadataframe(path_to_minao,filelist, totalenergylist)
+    leftoverdirect = [0,1,2,3,4,5,6]
+  #  checkifreadyfornextstep(path_to_minao)
     for smiles in leftoverdirect:
         try:
-            coords = gatheroptxyzcoords(path_to_minao,smiles)
+            coords = xyzgrabber(smiles,path_to_minao)
+            print(coords)
+            #coords = gatheroptxyzcoords(path_to_minao,smiles)
             #print(coords)
             os.mkdir(str(path_to_apvdz) + '/' + str(smiles))
-            optmizedinputfile('radical',path_to_apvdz,coords,str(smiles))
-            pbsfilecreator('seq','','',path_to_apvdz,str(smiles))
+            optmizedinputfile('anion',path_to_apvdz,coords,str(smiles))
+            pbsfilecreator(typeofcluster,'','',path_to_apvdz,str(smiles))
             runjobs(path_to_apvdz,smiles)
         except FileExistsError:
+            coords = xyzgrabber(smiles,path_to_minao)
+            print(coords)
+            optmizedinputfile('anion',path_to_apvdz,coords,str(smiles))
+            pbsfilecreator(typeofcluster,'','',path_to_apvdz,str(smiles))
+            #runjobs(path_to_apvdz,smiles)
             print('Directory exists already ' + str(smiles))
             runjobs(path_to_apvdz,smiles)
             pass
