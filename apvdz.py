@@ -217,10 +217,11 @@ def optmizedinputfile(Type,path,coords,smiles):
   #  filename.write('\n')
     for i in coords:
         
-        i = i.replace('  0  ', ' ')
+      #  i = i.replace('  0  ', ' ')
         print(i)
             #print(i[16:])
-        filename.write(i[16:])
+        filename.write(i)
+        filename.write('\n')
     filename.write('\n')
     filename.close()
     #print(x)
