@@ -99,7 +99,7 @@ def inputcreator(dipole,xyz,filename,num):
     filename.write('orbital,IGNORE_ERROR\n')
     filename.write('dm,5600.2 \n')
     filename.write('expec,qm \n')
-    filename.write('eom,2.1,1.2,trans=1} \n')
+    filename.write('eom,2.1,3.1,1.2,2.2,trans=1} \n')
     filename.write('\n')
     
 

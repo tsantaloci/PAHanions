@@ -76,6 +76,78 @@ def exciteDBS(num,path):
 
     return float(state21[0])
 
+def orbitalsDBS(num,path):
+    filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
+
+    data = filename.readlines()
+    data_2 = filename.readlines()
+    start = []
+    end = []
+    for num,x in enumerate(data):
+        if 'Results for state  2.1:' in x :
+            start.append(num)
+        if 'Results for state  3.1' in x:
+            end.append(num)
+    if start[-1]>end[-1]:
+        start = start[-2]
+        print(start)
+        end =  end[-1]
+        print(end)
+        orbitals = []
+        for i in data[start+3:end]:
+            if 'Results for state  2.1:' in i:
+                i 
+            if 'Contribution of reference determinant'  in i:
+                i
+            if '3.1' in i:
+                i
+            else:
+                orbitals.append(i.replace('\n',''))
+        coefficients = []
+        excitations = []
+        for i in orbitals:
+            if i == '':
+                i
+            else:
+                if abs(float(i[0:15])) > 0.3: 
+                    coefficients.append(i[0:15])
+                    excitations.append(i[15:].replace('\n',''))
+        d = {'Coefficients': coefficients,'Excitation': excitations}
+        df = pd.DataFrame(data=d)
+        print(df)
+    else:
+        start = start[-1]
+        print(start)
+        end =  end[-1]
+        print(end)
+        orbitals = []
+        for i in data[start+3:end]:
+            if 'Results for state  2.1:' in i:
+                i 
+            if 'Contribution of reference'  in i:
+                i
+            else:
+                orbitals.append(i.replace('\n',''))
+        coefficients = []
+        excitations = []
+        for i in orbitals:
+            if 'Contribution' in str(i):
+                i
+            if i == '':
+                i
+            else:
+                print(i)
+                if abs(float(i[0:15])) > 0.3:
+                    coefficients.append(i[0:15])
+                    excitations.append(i[15:].replace('\n',''))
+        d = {'Coefficients': coefficients,'Excitation': excitations}
+        df = pd.DataFrame(data=d)
+        print(df)
+
+    return 
+
+
+
 def excite2ndDBS(num,path):
     filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
 
@@ -189,10 +261,13 @@ def main():
 
    ### CNCN  ### #### 24 is not done and 32 has a bug but is done ####
    ### 1Naph CNCN w/o 24 and 32###
-    isomer = ['0','1','2','3','4','25','26','27','28','29','30','31','32','33','34','35','36','38','40']
-   ### 2Naph CNCN ###
-    isomer =   ['7','8','9','25','26','27','32','34','35']
-
+    isomer = ['0','1','2','3','4','25','26','27','28','29','30','31','33','34','35','36','38','40']
+   # isomer = ['8','26']
+   # isomer = ['26']
+   # isomer = ['8']
+   ### 2Naph CNCN 7 did not print orbitals excitations###
+   # isomer =   ['8','9','25','26','27','32','34','35']
+   # isomer = ['25']
 
 
 
@@ -213,11 +288,17 @@ def main():
         a.append(str(anionener(i,path_to_anion_ener)).replace('[','').replace(']','').replace("'",''))
         dipole.append(dipoletable(i,path_to_dipole))
         eBE.append(eBEgatherer(i,path_to_eBE))
+
+
         DBS.append(exciteDBS(i,path_to_exc))
+        orbitalsDBS(i,path_to_exc)
+
+
         DBS2nd.append(excite2ndDBS(i,path_to_exc))
 
         VBS.append(exciteVBS(i,path_to_exc))
         VBS2nd.append(excite2ndVBS(i,path_to_exc))
+    
     a2 = []
     r2 = []
     for i in a:
@@ -228,7 +309,7 @@ def main():
         r2.append(i)
 
 ###### Relative Energies and Dipole moment Table #####
-    Isomer = '2-Dicyanonaph.'
+    Isomer = '1-Dicyanonaph.'
     d = {'filename': isomer, 'Anion': a2,'Radical': r2}
     df = pd.DataFrame(data=d)
     d2 = {Isomer:isomer,'Anion':df['Anion']-df['Anion'].min(),'Radical':df['Radical']-df['Radical'].min(),'Dipole':dipole}
@@ -251,6 +332,10 @@ def main():
 
 
         
+
+
+    
+
 
 
 
