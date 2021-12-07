@@ -16,7 +16,7 @@ def radicalener(num,path):
                     #print(num)
                     iterenergy.append(num2)
 
-            totener2.append(float(iterenergy[-1][24:41])*627.509)
+            totener2.append(float(iterenergy[-1][24:41])*27.2114)
    # print(totener2)
 
 
@@ -37,7 +37,7 @@ def anionener(num,path):
                     #print(num)
                     iterenergy.append(num2)
 
-            totener.append(float(iterenergy[-1][24:41])*627.509)
+            totener.append(float(iterenergy[-1][24:41])*27.2114)
 
     return totener
 
@@ -60,7 +60,7 @@ def eBEgatherer(num,path):
    # print(value)
     #print(value[0])
 
-    return value[0] * 27.2114
+    return round(value[0] * 27.2114,4)
 
 def exciteDBS(num,path):
     filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
@@ -74,7 +74,7 @@ def exciteDBS(num,path):
             state21.append(x[13:25])
         
 
-    return float(state21[0])
+    return round(float(state21[0]),4)
 
 
 
@@ -127,7 +127,7 @@ def excite2ndDBS(num,path):
             state31.append(x[13:25])
         
 
-    return float(state31[0])
+    return round(float(state31[0]),4)
 
 def orbitals2ndDBS(num,path):
     filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
@@ -181,7 +181,7 @@ def exciteVBS(num,path):
             state12.append(x[13:25])
         
 
-    return float(state12[0])
+    return round(float(state12[0]),4)
 
 def orbitalsVBS(num,path):
     filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
@@ -232,7 +232,7 @@ def excite2ndVBS(num,path):
             state22.append(x[13:25])
         
 
-    return float(state22[0])
+    return round(float(state22[0]),4)
 
 
 def orbitals2ndVBS(num,path):
@@ -292,10 +292,10 @@ def dipoletable(num,path):
    # print(tt)
 
 
-    return tt
+    return round(tt,2)
 
-def quadtable(name,path,path2,numb):
-    filename = open(path,'r')
+def quadtable(num,path):
+    filename = open(path + '/' + str(num) + '/' + str(num) + '.out','r')
     data = filename.readlines()
     for num,i in enumerate(data):
         if 'Traceless' in i:
@@ -310,17 +310,21 @@ def quadtable(name,path,path2,numb):
                     xy = float(x[10:26])
                     xz = float(x[37:55])
                     yz = float(x[60:])
-    filename2 = open(path2 + '/' +'quadinfo.tex','a+')
-    filename2.write(str(numb) + ' & '+ str(xx) + " & " + str(yy) + ' & ' + str(zz) + ' & ' + str(xy) + ' & '+ str(xz) + ' & ' + str(yz) + " \\\\ " + '\n' )
+  #  filename2 = open(path2 + '/' +'quadinfo.tex','a+')
+  #  filename2.write(str(numb) + ' & '+ str(xx) + " & " + str(yy) + ' & ' + str(zz) + ' & ' + str(xy) + ' & '+ str(xz) + ' & ' + str(yz) + " \\\\ " + '\n' )
 
     
-
+    total = [abs(xx),abs(yy),abs(zz),abs(xy),abs(xz),abs(yz)]
+   # print(sorted(total))
+    total = sorted(total)
+    #total = total.sort()
+    print(total)
 
  
    # os.remove('quad.out')
     
 
-    return 
+    return round(total[-1],2)
 
 
 
@@ -328,33 +332,157 @@ def quadtable(name,path,path2,numb):
 def main():
 
     path_to_src = '/Users/tsantaloci/Desktop/PAHcode/src'
-    path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/aniondipole/2Naph'
-    path_to_dipole = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/aniondipole/2Naph'
-    path_to_dipole = path_to_quad
-    path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/2Naph'
-    path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/radicals/apVDZ/2Naph'
-    path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/eBE/2Naph'
-    path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/apvdz+8s6p2d/2Naph'
-    name = 'CNCNNaph'
+  
+  
+  
+
+
+
+  #  path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/2Naph'
+
+
+   # path_to_dipole = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/1Naph'
+
+  #  path_to_dipole = path_to_quad
+
+  #  path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/2Naph'
+
+
+  #  path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/radicals/apVDZ/2Naph'
+
+
+   # path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/eBE/2Naph'
+
+
+   # path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/apvdz+8s6p2d/2Naph'
     #radicalener(path_to_radical_ener)
 
    # os.chdir(path_to_radical_ener)
 
-   ### CNCN  ### #### 24 is not done and 32 has a bug but is done ####
-   ### 1Naph CNCN w/o 24 and 32###
-  #  isomer = ['0','1','2','3','4','25','26','27','28','29','30','31','33','34','35','36','38','40']
+   ############### 1Naph CNCN ##################
+
+  # path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/aniondipole/1Naph'
+  # path_to_dipole = path_to_quad
+  # path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/1Naph'
+  # path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/radicals/apVDZ/1Naph'
+  # path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/eBE/1Naph'
+  # path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/apvdz+8s6p2d/1Naph'
+
+
+  ####################################################
+
+
+    isomer = [0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,18,19,23,24,25,26,27,28,29,30,31,32,33,34,35,36,38,40]
+    isomer_2 = []
+    for i in isomer:
+        i = str(i)
+        isomer_2.append(i)
+    isomer = isomer_2
+
+  #  isomer = ['0','1','2','3','4','24','25','26','27','28','29','30','31','33','34','35','36','38','40']
    # isomer = ['8','26']
    # isomer = ['26']
    # isomer = ['8']
-   ### 2Naph CNCN 7 did not print orbitals excitations###
-    isomer =   ['8','9','25','26','27','32','34','35']
-   # isomer = ['25']
+   ################# 2Naph CNCN  ######################
+
+  # path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/aniondipole/2Naph'
+  # path_to_dipole = path_to_quad
+  # path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/apvdz/2Naph'
+  # path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNCN/radicals/apVDZ/2Naph'
+  # path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/eBE/2Naph'
+  # path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNCN/EOM/apvdz+8s6p2d/2Naph'
+
+  ######################################################
+
+
+
+
+
+#    isomer =   ['7','8','9','25','26','27','32','34','35']
+
+
+    ### 1Naph CNC2H  34 removed due to radical not done yet ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48']u###
+   # isomer = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '35', '36', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48']
+
+   ################# 1Naph CNC2H  ######################
+
+   # path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/1Naph'
+   # path_to_dipole = path_to_quad
+   # path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/1Naph'
+   # path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/radicals/apVDZ/1Naph'
+   # path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/eBE/1Naph'
+   # path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/apvdz+8s6p2d/1Naph'
+
+
+  ######################################################
+
+
+
+    
+
+   ################# 2Naph CNC2H  ######################
+
+   # path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/aniondipole/2Naph'
+   # path_to_dipole = path_to_quad
+   # path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/apvdz/2Naph'
+   # path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/radicals/apVDZ/2Naph'
+   # path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/eBE/2Naph'
+   # path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/CNC2H/EOM/apvdz+8s6p2d/2Naph'
+
+
+  ########################################################
+  # # 2Naph CNC2H 29 excited state going####
+
+    #isomer = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48'] 
+    #for i in range(49):
+    #    isomer.append(str(i))
+    #print(isomer)
+   
+
+
+   ####### 1Naph C2HC2H ######################
+    '''
+    path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/aniondipole/1Naph'
+    path_to_dipole = path_to_quad
+    path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/1Naph'
+    path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/radicals/apVDZ/1Naph'
+    path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/EOM/eBE/1Naph'
+    path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/EOM/apvdz+8s6p2d/1Naph'
+    isomer = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,19,20,23,24,25,26,27,32,33,34,35,36,37,38,39,41,42,43,44,45,46,47,48,49,50,51,52] 
+    isomer_2 = []
+    for i in isomer:
+        isomer_2.append(str(i))
+    isomer = isomer_2
+    
+    '''
+    ########################################
+
+
+    ######## 2Naph C2HC2H ##################
+
+    
+    path_to_quad = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/aniondipole/2Naph'
+    path_to_dipole = path_to_quad
+    path_to_anion_ener = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/apvdz/2Naph'
+    path_to_radical_ener = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/radicals/apVDZ/2Naph'
+    path_to_eBE = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/EOM/eBE/2Naph'
+    path_to_exc = '/Users/tsantaloci/Desktop/PAHcode/C2HC2H/EOM/apvdz+8s6p2d/2Naph'
+    isomer = [8,9,11,12,16,39,36,31,37,41,42,43,55]
+    isomer_2 = []
+    for i in isomer:
+        isomer_2.append(str(i))
+    isomer = isomer_2
+    
+
+
+    #########################################
 
 
 
     a = []
     r = []
     dipole = []
+    quad = []
     eBE = []
     DBS = []
     DBSorbs_c = []
@@ -377,55 +505,74 @@ def main():
         os.chdir(path_to_anion_ener)
         a.append(str(anionener(i,path_to_anion_ener)).replace('[','').replace(']','').replace("'",''))
         dipole.append(dipoletable(i,path_to_dipole))
+        quad.append(quadtable(i,path_to_dipole))
         eBE.append(eBEgatherer(i,path_to_eBE))
         DBS.append(exciteDBS(i,path_to_exc))
+        '''
         c = orbitalsDBS(i,path_to_exc)
         
         DBSorbs_c.append(c[0])
         DBSorbs_e.append(c[1])
+        '''
         
         DBS2nd.append(excite2ndDBS(i,path_to_exc))
+        '''
         c_2 = orbitals2ndDBS(i,path_to_exc)
         DBS2ndorbs_c.append(c_2[0])
         DBS2ndorbs_e.append(c_2[1])
+        '''
         
         VBS.append(exciteVBS(i,path_to_exc))
+        '''
         c_3 = orbitalsVBS(i,path_to_exc)
         VBSorbs_c.append(c_3[0])
         VBSorbs_e.append(c_3[1])
+        '''
         
         VBS2nd.append(excite2ndVBS(i,path_to_exc))
+        '''
         c_4 = orbitals2ndVBS(i,path_to_exc)
         VBS2ndorbs_c.append(c_4[0])
         VBS2ndorbs_e.append(c_4[1])
-        
+        '''
     a2 = []
     r2 = []
+    index = 0
     for i in a:
+        index += 1
         i = float(i)
-        a2.append(i)   
+        a2.append(round(i,4)) 
+    #print(r[34])  
+    index = 0
     for i in r:
+        index += 1
+        print(index)
         i = float(i)
-        r2.append(i)
+        r2.append(round(i,4))
     
 ###### Relative Energies and Dipole moment Table #####
 
-    Isomer = '1-Dicyanonaph.'
+    Isomer = '2-cyanoethynylnaph.'
+    Isomer = input('What is the name ')
+    Isomer = str(Isomer)
     d = {'filename': isomer, 'Anion': a2,'Radical': r2}
     df = pd.DataFrame(data=d)
-    d2 = {Isomer:isomer,'Anion':df['Anion']-df['Anion'].min(),'Radical':df['Radical']-df['Radical'].min(),'Dipole':dipole}
+    d2 = {Isomer:isomer,'Anion':df['Anion']-df['Anion'].min(),'Radical':df['Radical']-df['Radical'].min(),'Dipole':dipole,'Quad':quad}
     df2 = pd.DataFrame(data=d2)
     os.chdir(path_to_src)
     df2.to_csv('relenerg.csv',index=False) 
-   # print(df2.to_latex(index=False))
+    print(df2.to_latex(index=False))
 ####### Excitation energies with eBE #########
-    e = {Isomer: isomer,"VBS":VBS, "2nd VBS": VBS2nd , "DBS":DBS,"coefficients":DBSorbs_c,"Excitation":DBSorbs_e, "2nd DBS":DBS2nd, 'eBE': eBE} 
+    e = {Isomer: isomer,"VBS":VBS, "2nd VBS": VBS2nd , "DBS":DBS,"2nd DBS":DBS2nd, 'eBE': eBE} 
 
     ef = pd.DataFrame(data=e) 
     os.chdir(path_to_src)
     ef.to_csv('excitation.csv',index=False)
+    print(ef.to_latex(index=False))
+
 
 ####### Orbitals and what the excitations are going #######
+    '''
     DBSorbs_1 = {Isomer: isomer, "DBS":DBS,"coefficients":DBSorbs_c,"Excitation":DBSorbs_e, 'eBE': eBE,'Dipole':dipole}
     DBSorbs_2 = {Isomer: isomer, "2nd_DBS":DBS2nd,"coefficients":DBS2ndorbs_c,"Excitation":DBS2ndorbs_e, 'eBE': eBE,'Dipole':dipole}
     VBSorbs_1 = {Isomer: isomer, "VBS":VBS,"coefficients":VBSorbs_c,"Excitation":VBSorbs_e, 'eBE': eBE,'Dipole':dipole}
@@ -453,6 +600,7 @@ def main():
     total = pd.DataFrame(data=total)
     os.chdir(path_to_src)
     total.to_csv('total.csv',index=False)
+    '''
     
    # print(ef)
    # print(ef.to_latex(index=False))

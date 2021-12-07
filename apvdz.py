@@ -299,7 +299,7 @@ def Main():
             os.mkdir(str(path_to_apvdz) + '/' + str(smiles))
             optmizedinputfile('anion',path_to_apvdz,coords,str(smiles))
             pbsfilecreator(typeofcluster,'','',path_to_apvdz,str(smiles))
-            runjobs(path_to_apvdz,smiles)
+          #  runjobs(path_to_apvdz,smiles)
         except FileExistsError:
             coords = xyzgrabber(smiles,path_to_minao)
             print(coords)
@@ -307,7 +307,7 @@ def Main():
             pbsfilecreator(typeofcluster,'','',path_to_apvdz,str(smiles))
             #runjobs(path_to_apvdz,smiles)
             print('Directory exists already ' + str(smiles))
-            runjobs(path_to_apvdz,smiles)
+          #  runjobs(path_to_apvdz,smiles)
             pass
         
 
